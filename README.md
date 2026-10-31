@@ -11,22 +11,25 @@ Documentation: start at [documentation/index.md](documentation/index.md).
 
 ## Dependencies
 
-"Lowest version verified" is the lowest version this project was actually built and tested with.
-Lower versions are untested, not known to fail. "not recorded" means CI ran but the version was
-not captured; it appears in the CI Configure log (`The CXX compiler identification is ...`).
+**Minimum** is a soft limit: the lowest version the project is supported with. It is the lowest
+version this project was built and tested with, rounded down to the minor release. An older tool
+may still work; it is simply unsupported. "Provisional" means the CI log did not record the verified
+version, so the minimum is a chosen floor to confirm from the next CI Configure log, which now
+prints `C++ compiler: <id> <version>`.
 
-| Dependency | Needed for | Declared minimum | Lowest version verified |
-|------------|-----------|------------------|-------------------------|
-| C++23 compiler: GCC | Linux | none declared | 13.3.0 (local, Linux) |
-| C++23 compiler: Clang with libstdc++ | Linux | none declared | 18.1.3 (local, Linux) |
-| C++23 compiler: Apple Clang (Xcode 26.6 SDK) | macOS | none declared | CI, compiler version not recorded |
-| C++23 compiler: MSVC `cl` | Windows | none declared | CI, version not recorded |
-| C++23 compiler: FreeBSD base Clang with libc++ | FreeBSD | none declared | CI, version not recorded |
-| CMake | all platforms | 3.25 (`cmake_minimum_required`, preset schema 6) | 3.28.3 (local); CI versions not recorded |
-| Ninja | all presets (`Ninja`, `Ninja Multi-Config`) | none declared | 1.11.1 (local); CI versions not recorded |
-| Git | fetching Catch2 (`FetchContent`) | none declared | 2.43.0 (local); CI versions not recorded |
-| Catch2 (tests only) | `BUILD_TESTING=ON` | 3.3 (`find_package(Catch2 3.3)`, needed for `SKIP`) | 3.7.1 (fetched, pinned in `test/CMakeLists.txt`) |
+| Dependency | Needed for | Minimum (soft) | Enforcement | Lowest version verified |
+|------------|-----------|----------------|-------------|-------------------------|
+| GCC | Linux | 13.0 | CMake warning at configure | 13.3.0 (local) |
+| Clang (libstdc++ on Linux, libc++ on FreeBSD) | Linux, FreeBSD | 18.0 | CMake warning at configure | 18.1.3 (local, Linux); FreeBSD version not recorded |
+| Apple Clang (Xcode 26.6 SDK) | macOS | 17.0 (provisional) | CMake warning at configure | not recorded |
+| MSVC `cl` | Windows | 19.40, Visual Studio 2022 17.10 (provisional) | CMake warning at configure | not recorded |
+| CMake | all platforms | 3.25 (hard: `cmake_minimum_required`, preset schema 6) | CMake error | 3.28.3 (local); CI not recorded |
+| Ninja | all presets (`Ninja`, `Ninja Multi-Config`) | 1.11 | not checked | 1.11.1 (local); CI not recorded |
+| Git | fetching Catch2 (`FetchContent`) | 2.43 | not checked | 2.43.0 (local); CI not recorded |
+| Catch2 (tests only) | `BUILD_TESTING=ON` | 3.3 (needed for `SKIP`) | `find_package(Catch2 3.3)`; an older install is ignored and 3.7.1 is fetched | 3.7.1 (fetched, pinned in `test/CMakeLists.txt`) |
 
+- The compiler minimums live in `tool/cmake/ToolchainRequirements.cmake` and can be overridden with
+  `-DPROJECT_MIN_<ID>_VERSION=<version>`. The warning never stops the build.
 - Catch2: a system install of version 3.3 or newer is used if found; otherwise v3.7.1 is fetched
   from github.com, which needs network access on the first configure.
 - Runtime dependencies: none beyond the C++ standard library (`<filesystem>` is used).

@@ -27,5 +27,6 @@ in CI) and not on a specific Visual Studio version. The CI Windows job passed wi
 
 - The `msvc` preset fails outside a prepared environment (`cl` not found).
 - The preset needs Ninja installed.
+- The soft MSVC minimum (19.40) is provisional until a CI Configure log records the real version.
 - Only Debug is exercised in CI; Release on Windows is untested.
 - Windows ARM and 32-bit targets are not addressed.

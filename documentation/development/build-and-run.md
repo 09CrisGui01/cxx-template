@@ -47,6 +47,10 @@ operating systems without the build directories colliding. `<os>` is the CMake h
 | `BUILD_TESTING` | `ON` | Builds `app_tests` and registers CTest tests |
 | `CMAKE_BUILD_TYPE` | `Release` if unset (single-config generators only) | Standard CMake variable |
 
+Compiler minimum versions are soft limits set in `tool/cmake/ToolchainRequirements.cmake`; a compiler
+below its minimum triggers a configure warning, not an error. Override with
+`-DPROJECT_MIN_GNU_VERSION=<version>` (also `_CLANG_`, `_APPLECLANG_`, `_MSVC_`).
+
 Without presets:
 
 ```sh

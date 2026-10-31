@@ -4,8 +4,9 @@
 
 ## Required tools
 
-CMake, Ninja, Git and a C++23 compiler. Minimum and verified versions are in the README
-[dependency table](../../README.md#dependencies); that table is the single source of truth.
+CMake, Ninja, Git and a C++23 compiler. Minimum (soft) and verified versions are in the README
+[dependency table](../../README.md#dependencies); that table is the single source of truth. A
+compiler below its minimum produces a CMake warning at configure time and the build continues.
 
 Not required: Docker, Podman, Node.js, Python, Jenkins.
 

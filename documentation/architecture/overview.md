@@ -12,7 +12,7 @@ here because they do not exist yet.
 | Executable `app` | `internal/main.cpp` | Argument handling, printing, exit codes. No logic worth testing in isolation. |
 | Tests `app_tests` | `test/config_test.cpp` | Catch2 unit tests against `app_core` |
 | Integration tests | `test/CMakeLists.txt` | CTest tests that run the real `app` binary |
-| CMake helpers | `tool/cmake/CompilerWarnings.cmake`, `tool/cmake/Portability.cmake` | Per-target warning and platform settings |
+| CMake helpers | `tool/cmake/CompilerWarnings.cmake`, `tool/cmake/Portability.cmake`, `tool/cmake/ToolchainRequirements.cmake` | Per-target warning and platform settings; soft compiler minimum check |
 
 Dependency direction: `app` and `app_tests` depend on `app_core`. `app_core` depends only on the C++
 standard library. Nothing depends on `app` or on test code.

@@ -32,7 +32,8 @@ Milestone 2; later milestones extend it.
 │   └── config_test.cpp
 └── tool/cmake/
     ├── CompilerWarnings.cmake
-    └── Portability.cmake
+    ├── Portability.cmake
+    └── ToolchainRequirements.cmake
 ```
 
 `build/<os>/<preset>/` appears after configuring and is not tracked.
@@ -63,6 +64,7 @@ Milestone 2; later milestones extend it.
 | `README.md` | Overview, dependencies, quick start, platform support |
 | `internal/result.hpp` | `Result<T, E>`: value-or-error type used instead of `std::expected` ([ADR 0001](decisions/0001-result-type-instead-of-std-expected.md)) |
 | `tool/cmake/CompilerWarnings.cmake` | `project_set_warnings(target)`: GCC, Clang and MSVC warning flags |
+| `tool/cmake/ToolchainRequirements.cmake` | Soft minimum compiler versions and `project_check_toolchain()`, which logs the compiler and warns below the minimum |
 | `tool/cmake/Portability.cmake` | `project_set_portability(target)`: MSVC-only flags `/utf-8`, `/Zc:__cplusplus`, `NOMINMAX` |
 | `data/*/.gitkeep` | Keeps empty directories in Git |
 

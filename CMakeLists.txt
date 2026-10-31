@@ -21,6 +21,9 @@ option(PROJECT_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
 include(CompilerWarnings)
 include(Portability)
+include(ToolchainRequirements)
+
+project_check_toolchain()
 
 # Library: all logic lives here so tests link against it.
 add_library(app_core STATIC
