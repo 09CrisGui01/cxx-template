@@ -1,0 +1,89 @@
+# Architecture overview
+
+**Purpose:** describe the components, build targets, data flow and test architecture as implemented
+today. Features from later milestones (coverage, containers, Jenkins, and so on) are not described
+here because they do not exist yet.
+
+## Components
+
+| Component | Files | Responsibility |
+|-----------|-------|----------------|
+| Library `app_core` | `internal/config.cpp`, `internal/config.hpp`, `internal/result.hpp` | All logic: parsing and loading configuration, error types |
+| Executable `app` | `internal/main.cpp` | Argument handling, printing, exit codes. No logic worth testing in isolation. |
+| Tests `app_tests` | `test/config_test.cpp` | Catch2 unit tests against `app_core` |
+| Integration tests | `test/CMakeLists.txt` | CTest tests that run the real `app` binary |
+| CMake helpers | `tool/cmake/CompilerWarnings.cmake`, `tool/cmake/Portability.cmake`, `tool/cmake/ToolchainRequirements.cmake` | Per-target warning and platform settings; soft compiler minimum check |
+
+Dependency direction: `app` and `app_tests` depend on `app_core`. `app_core` depends only on the C++
+standard library. Nothing depends on `app` or on test code.
+
+## CMake targets
+
+Defined in `CMakeLists.txt` and `test/CMakeLists.txt`.
+
+| Target | Type | Sources | Notes |
+|--------|------|---------|-------|
+| `app_core` (alias `cpp23_template::core`) | static library | `internal/config.cpp` | Public include directory `internal/`; `cxx_std_23` is a public compile feature |
+| `app` | executable | `internal/main.cpp` | Links `app_core`; defines `APP_VERSION` from `project(VERSION)` |
+| `app_tests` | executable | `test/config_test.cpp` | Links `app_core` and `Catch2::Catch2WithMain`; only exists when `BUILD_TESTING=ON` |
+
+Every target calls `project_set_warnings()` and `project_set_portability()`. Both apply flags
+`PRIVATE` to the one target; no flags are set globally. Language settings (`CXX_STANDARD 23`,
+required, extensions off) are set once at the top of `CMakeLists.txt`.
+
+The `ALIAS` name is derived from `${PROJECT_NAME}`; renaming the project changes it.
+
+## Example application
+
+`app [config-file]` loads a `key=value` file and prints each entry.
+
+Format rules:
+
+- One `key=value` pair per line. Whitespace around key and value is trimmed.
+- Blank lines and lines starting with `#` are ignored.
+- Keys may contain `A-Z a-z 0-9 _ . -`. Duplicate keys are rejected.
+- A leading UTF-8 byte order mark is skipped. `\r\n` line endings are accepted.
+
+Limits for untrusted input, defined in `internal/config.hpp`:
+
+| Limit | Value |
+|-------|-------|
+| File or text size | 1 MiB (`max_config_bytes`) |
+| Line length | 4096 bytes (`max_line_bytes`) |
+| Entries | 1024 (`max_entries`) |
+
+Data flow:
+
+1. `main` passes `argv[1]` to `load_config_file`.
+2. `load_config_file` checks the path exists, is a regular file (symlinks are followed) and is within the size limit, then reads at most that many bytes.
+3. `parse_config` strips a BOM, splits lines, enforces limits and rules, and returns the entries.
+4. Both functions return `Result<Config, Error>`. `main` prints the entries or the error and sets the exit status.
+
+Error handling convention: expected failures are values (`Result`, `ErrorCode`), not exceptions. See
+[coding standards](../development/coding-standards.md#error-handling).
+
+## Test architecture
+
+- **Unit tests:** Catch2 cases in `test/config_test.cpp`, discovered by `catch_discover_tests`, so each case is one CTest test. They cover normal input, invalid input, boundaries of every limit, file failures and platform behaviors (tag `[portability]`).
+- **Integration tests:** four CTest tests run the built `app`: no arguments, the sample file `configuration/default.conf` (expects `loaded 2 entries`), a missing file (must fail) and too many arguments (must fail).
+- **Isolation:** tests that need files create them in a unique temporary directory (`TempDir` helper) and remove it afterwards. They use no external services and no files outside the repository's `configuration/` sample.
+- **Dependency:** Catch2 is used only by `test/`; production targets do not link it. See [ADR 0002](decisions/0002-catch2-test-framework.md).
+
+Coverage and sanitizer architecture arrive in Milestones 3 and 4.
+
+## Replacing the example application
+
+Not yet validated end-to-end; a full rename check is part of Milestone 10.
+
+1. Replace `internal/config.*` with your sources and update the file list in `add_library(app_core ...)` in `CMakeLists.txt`.
+2. Replace `internal/main.cpp` (keep the `app` target, or rename it everywhere it appears in both `CMakeLists.txt` files).
+3. Replace `test/config_test.cpp` and update `add_executable(app_tests ...)` in `test/CMakeLists.txt`.
+4. Update or delete the four `app.*` integration tests in `test/CMakeLists.txt`; they reference `configuration/default.conf` and the text `loaded 2 entries`.
+5. Remove `configuration/default.conf` and `internal/result.hpp` if unused.
+6. Change `project(cpp23_template ...)` and `VERSION` in `CMakeLists.txt` to your name and version.
+7. Rebuild with a clean directory: `cmake --preset test`, `cmake --build --preset test`, `ctest --preset test`.
+
+## Related
+
+[Repository structure](repository-structure.md), [Build and run](../development/build-and-run.md),
+[ADR 0001](decisions/0001-result-type-instead-of-std-expected.md)

@@ -1,6 +1,11 @@
 # Test dependency: Catch2 v3. Prefer a system install; otherwise fetch a pinned
+<<<<<<< HEAD
 # release. Fetching needs network access on first configure (see
 # documentation/tooling/dependency-management.md once written).
+=======
+# release. Fetching needs network access on first configure; see the
+# dependency table in README.md and documentation/architecture/decisions/0002-catch2-test-framework.md.
+>>>>>>> master
 find_package(Catch2 3.3 QUIET)
 if(NOT Catch2_FOUND)
   include(FetchContent)
