@@ -1,0 +1,31 @@
+# Build and tooling output
+/build/
+/CMakeUserPresets.json
+compile_commands.json
+CMakeCache.txt
+CMakeFiles/
+node_modules/
+
+# Coverage and generated reports
+/coverage/
+*.gcda
+*.gcno
+*.profraw
+*.profdata
+
+# Data produced at runtime
+/data/midput/*
+/data/output/*
+!/data/midput/.gitkeep
+!/data/output/.gitkeep
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Secrets
+.env
+*.pem
+*.key

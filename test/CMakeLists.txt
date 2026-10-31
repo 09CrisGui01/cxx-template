@@ -1,0 +1,37 @@
+# Test dependency: Catch2 v3. Prefer a system install; otherwise fetch a pinned
+# release. Fetching needs network access on first configure (see
+# documentation/tooling/dependency-management.md once written).
+find_package(Catch2 3 QUIET)
+if(NOT Catch2_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(Catch2
+    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+    GIT_TAG        v3.7.1
+    GIT_SHALLOW    TRUE
+    SYSTEM)
+  FetchContent_MakeAvailable(Catch2)
+  list(APPEND CMAKE_MODULE_PATH "${catch2_SOURCE_DIR}/extras")
+endif()
+include(Catch)
+
+add_executable(app_tests config_test.cpp)
+target_link_libraries(app_tests PRIVATE app_core Catch2::Catch2WithMain)
+project_set_warnings(app_tests)
+project_set_portability(app_tests)
+
+# Each Catch2 test case becomes its own CTest test.
+catch_discover_tests(app_tests)
+
+# Integration tests: run the real executable against real files.
+set(sample_conf "${PROJECT_SOURCE_DIR}/configuration/default.conf")
+
+add_test(NAME app.runs_without_arguments COMMAND app)
+add_test(NAME app.loads_sample_configuration COMMAND app "${sample_conf}")
+set_tests_properties(app.loads_sample_configuration PROPERTIES
+  PASS_REGULAR_EXPRESSION "loaded 2 entries")
+
+add_test(NAME app.rejects_missing_file COMMAND app "${CMAKE_CURRENT_BINARY_DIR}/does-not-exist.conf")
+set_tests_properties(app.rejects_missing_file PROPERTIES WILL_FAIL TRUE)
+
+add_test(NAME app.rejects_extra_arguments COMMAND app one two)
+set_tests_properties(app.rejects_extra_arguments PROPERTIES WILL_FAIL TRUE)

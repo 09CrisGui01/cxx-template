@@ -1,0 +1,61 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: linux-gcc,    os: ubuntu-latest,  preset: test,  cc: gcc,   cxx: g++ }
+          - { name: linux-clang,  os: ubuntu-latest,  preset: test,  cc: clang, cxx: clang++ }
+          - { name: macos-clang,  os: macos-latest,   preset: debug }
+          - { name: windows-msvc, os: windows-latest, preset: msvc-debug, msvc: true }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Ninja (macOS)
+        if: runner.os == 'macOS'
+        run: brew install ninja
+
+      - name: Configure
+        shell: bash
+        run: |
+          if [ -n "${{ matrix.cxx }}" ]; then export CC=${{ matrix.cc }} CXX=${{ matrix.cxx }}; fi
+          if [ "${{ matrix.msvc }}" = "true" ]; then
+            cmake --preset msvc
+          else
+            cmake --preset ${{ matrix.preset }}
+          fi
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }}
+
+      - name: Test
+        run: ctest --preset ${{ matrix.preset }}
+
+  freebsd:
+    name: freebsd-clang
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test in FreeBSD VM
+        uses: vmactions/freebsd-vm@v1
+        with:
+          usesh: true
+          prepare: pkg install -y cmake ninja git
+          run: |
+            cmake --preset debug
+            cmake --build --preset debug
+            ctest --preset debug
