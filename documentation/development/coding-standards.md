@@ -64,7 +64,7 @@ brackets, in separate groups.
 
 ## Commits
 
-The commit message convention (Conventional Commits) and its enforcement arrive in Milestone 5.
+Commit message and other tool conventions are in [Conventions](conventions.md).
 
 ## Troubleshooting
 

@@ -14,6 +14,7 @@ canonical dependency table and platform support table; other pages link to it in
 | [Environment setup](development/environment-setup.md) | Installing the required tools |
 | [Build and run](development/build-and-run.md) | Presets, CMake options, running the app, selecting tests |
 | [Coding standards](development/coding-standards.md) | C++23 rules, naming, error handling, testing expectations |
+| [Conventions](development/conventions.md) | Git commits and branches, tool usage, documentation writing (no code rules) |
 | [Architecture overview](architecture/overview.md) | Components, CMake targets, data flow, test architecture |
 | [Repository structure](architecture/repository-structure.md) | Every directory and tracked file, and why it exists |
 | [ADR template](adr-template.md) | Template for architecture decision records |
