@@ -5,7 +5,9 @@
 > **Template placeholders:** replace `{{username}}` and `{{project-name}}` in the badge above
 > (both occurrences) with your GitHub account and repository name. Until you do, the badge is broken.
 
-Reusable C++23 application template. Milestone 1 of 10: minimal foundation.
+Reusable C++23 application template. Milestones 1-2 of 10 done: foundation and documentation.
+
+Documentation: start at [documentation/index.md](documentation/index.md).
 
 ## Dependencies
 
@@ -80,5 +82,6 @@ To replace the example: swap the sources listed in `CMakeLists.txt` and `test/CM
 
 ## Status
 
-Only milestone 1 exists. Docs, coverage, sanitizers, formatting, containers, CI and
-Commitlint arrive in later milestones; presets for them are added with each feature.
+Milestones 1 and 2 exist. Coverage, sanitizers, formatting, static analysis, Commitlint,
+containers, AI instructions and Jenkins arrive in later milestones; presets and docs for them
+are added with each feature.
