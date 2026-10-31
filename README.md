@@ -1,5 +1,10 @@
 # cpp23-template
 
+[![ci](https://github.com/{{username}}/{{project-name}}/actions/workflows/ci.yml/badge.svg)](https://github.com/{{username}}/{{project-name}}/actions/workflows/ci.yml)
+
+> **Template placeholders:** replace `{{username}}` and `{{project-name}}` in the badge above
+> (both occurrences) with your GitHub account and repository name. Until you do, the badge is broken.
+
 Reusable C++23 application template. Milestone 1 of 10: minimal foundation.
 
 ## Prerequisites
@@ -32,13 +37,13 @@ Other presets: `debug`, `release` (same three commands with the preset name).
 |----------|----------|--------|--------|
 | Linux | GCC 13 | `test`, `debug`, `release` | verified locally (build + 17/17 tests, Debug and Release) |
 | Linux | Clang 18 | same | verified locally (Debug and Release, `-Werror`) |
-| Windows | MSVC (VS 2022) | `msvc` + `msvc-debug`/`msvc-release` | **not verified**: configured, runs in CI only |
+| Windows | MSVC `cl` (Ninja Multi-Config) | `msvc` + `msvc-debug`/`msvc-release` | **not verified**: configured, runs in CI only |
 | macOS | Apple Clang | `debug`/`release` (needs `brew install ninja`) | **not verified**: runs in CI only |
 | FreeBSD | base Clang | `debug`/`release` (needs `pkg install cmake ninja git`) | **not verified**: runs in CI only |
 | OpenBSD, NetBSD | any | any | not covered by CI |
 
 CI matrix: `.github/workflows/ci.yml`. A platform counts as verified only after its job passes.
-Windows: run from a Developer Prompt or let the Visual Studio generator locate the toolchain:
+Windows: run from an "x64 Native Tools Command Prompt" (needs `cl` and `ninja` on PATH):
 `cmake --preset msvc`, `cmake --build --preset msvc-debug`, `ctest --preset msvc-debug`.
 Without Ninja, configure manually: `cmake -S . -B build/make -G "Unix Makefiles"`.
 
