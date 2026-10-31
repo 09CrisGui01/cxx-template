@@ -7,16 +7,28 @@
 
 Reusable C++23 application template. Milestone 1 of 10: minimal foundation.
 
-## Prerequisites
+## Dependencies
 
-Required:
+"Lowest version verified" is the lowest version this project was actually built and tested with.
+Lower versions are untested, not known to fail. "not recorded" means CI ran but the version was
+not captured; it appears in the CI Configure log (`The CXX compiler identification is ...`).
 
-- C++23 compiler: GCC 13+ or Clang 18+ (verified: see below). MSVC is configured but unverified.
-- CMake 3.25+
-- Ninja (the presets use it; any generator works if you configure manually)
-- Network access on first configure, to fetch Catch2 (unless Catch2 v3 is installed system-wide)
+| Dependency | Needed for | Declared minimum | Lowest version verified |
+|------------|-----------|------------------|-------------------------|
+| C++23 compiler: GCC | Linux | none declared | 13.3.0 (local, Linux) |
+| C++23 compiler: Clang with libstdc++ | Linux | none declared | 18.1.3 (local, Linux) |
+| C++23 compiler: Apple Clang (Xcode 26.6 SDK) | macOS | none declared | CI, compiler version not recorded |
+| C++23 compiler: MSVC `cl` | Windows | none declared | CI, version not recorded |
+| C++23 compiler: FreeBSD base Clang with libc++ | FreeBSD | none declared | CI, version not recorded |
+| CMake | all platforms | 3.25 (`cmake_minimum_required`, preset schema 6) | 3.28.3 (local); CI versions not recorded |
+| Ninja | all presets (`Ninja`, `Ninja Multi-Config`) | none declared | 1.11.1 (local); CI versions not recorded |
+| Git | fetching Catch2 (`FetchContent`) | none declared | 2.43.0 (local); CI versions not recorded |
+| Catch2 (tests only) | `BUILD_TESTING=ON` | 3.3 (`find_package(Catch2 3.3)`, needed for `SKIP`) | 3.7.1 (fetched, pinned in `test/CMakeLists.txt`) |
 
-Nothing else is needed: no Docker, Node.js or Python.
+- Catch2: a system install of version 3.3 or newer is used if found; otherwise v3.7.1 is fetched
+  from github.com, which needs network access on the first configure.
+- Runtime dependencies: none beyond the C++ standard library (`<filesystem>` is used).
+- Not required: Docker, Podman, Node.js, Python, Jenkins.
 
 ## Quick start
 
@@ -35,17 +47,17 @@ Other presets: `debug`, `release` (same three commands with the preset name).
 
 | Platform | Compiler | Preset | Status |
 |----------|----------|--------|--------|
-| Linux | GCC 13 | `test`, `debug`, `release` | verified locally (build + 17/17 tests, Debug and Release) |
-| Linux | Clang 18 | same | verified locally (Debug and Release, `-Werror`) |
-| Windows | MSVC `cl` (Ninja Multi-Config) | `msvc` + `msvc-debug`/`msvc-release` | **not verified**: configured, runs in CI only |
-| macOS | Apple Clang | `debug`/`release` (needs `brew install ninja`) | **not verified**: runs in CI only |
-| FreeBSD | base Clang | `debug`/`release` (needs `pkg install cmake ninja git`) | **not verified**: runs in CI only |
-| OpenBSD, NetBSD | any | any | not covered by CI |
+| Linux | GCC 13.3 | `test`, `debug`, `release` | verified locally: Debug and Release, 17/17 tests. CI runs `test` |
+| Linux | Clang 18.1 | same | verified locally: Debug and Release with `-Werror`, 17/17 tests. CI runs `test` |
+| Windows | MSVC `cl` (Ninja Multi-Config) | `msvc`, `msvc-debug` | CI passed (Debug only). Release not run |
+| macOS | Apple Clang | `debug` (needs `brew install ninja`) | CI passed (Debug only). Release not run |
+| FreeBSD | base Clang | `debug` (needs `pkg install cmake ninja git`) | CI passed (Debug only). Release not run |
 
-CI matrix: `.github/workflows/ci.yml`. A platform counts as verified only after its job passes.
+FreeBSD is the only BSD supported.
+
+CI matrix: `.github/workflows/ci.yml`. CI results for Windows, macOS and FreeBSD were reported by the repository owner, not observed by the author.
 Windows: run from an "x64 Native Tools Command Prompt" (needs `cl` and `ninja` on PATH):
 `cmake --preset msvc`, `cmake --build --preset msvc-debug`, `ctest --preset msvc-debug`.
-Without Ninja, configure manually: `cmake -S . -B build/make -G "Unix Makefiles"`.
 
 Portability tests (tag `[portability]`): UTF-8 BOM, CRLF files, spaces and non-ASCII paths, symlinks.
 

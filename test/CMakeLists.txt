@@ -1,7 +1,7 @@
 # Test dependency: Catch2 v3. Prefer a system install; otherwise fetch a pinned
 # release. Fetching needs network access on first configure (see
 # documentation/tooling/dependency-management.md once written).
-find_package(Catch2 3 QUIET)
+find_package(Catch2 3.3 QUIET)
 if(NOT Catch2_FOUND)
   include(FetchContent)
   FetchContent_Declare(Catch2
