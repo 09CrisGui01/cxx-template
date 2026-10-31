@@ -5,28 +5,6 @@
 > **Template placeholders:** replace `{{username}}` and `{{project-name}}` in the badge above
 > (both occurrences) with your GitHub account and repository name. Until you do, the badge is broken.
 
-<<<<<<< HEAD
-Reusable C++23 application template. Milestone 1 of 10: minimal foundation.
-
-## Dependencies
-
-"Lowest version verified" is the lowest version this project was actually built and tested with.
-Lower versions are untested, not known to fail. "not recorded" means CI ran but the version was
-not captured; it appears in the CI Configure log (`The CXX compiler identification is ...`).
-
-| Dependency | Needed for | Declared minimum | Lowest version verified |
-|------------|-----------|------------------|-------------------------|
-| C++23 compiler: GCC | Linux | none declared | 13.3.0 (local, Linux) |
-| C++23 compiler: Clang with libstdc++ | Linux | none declared | 18.1.3 (local, Linux) |
-| C++23 compiler: Apple Clang (Xcode 26.6 SDK) | macOS | none declared | CI, compiler version not recorded |
-| C++23 compiler: MSVC `cl` | Windows | none declared | CI, version not recorded |
-| C++23 compiler: FreeBSD base Clang with libc++ | FreeBSD | none declared | CI, version not recorded |
-| CMake | all platforms | 3.25 (`cmake_minimum_required`, preset schema 6) | 3.28.3 (local); CI versions not recorded |
-| Ninja | all presets (`Ninja`, `Ninja Multi-Config`) | none declared | 1.11.1 (local); CI versions not recorded |
-| Git | fetching Catch2 (`FetchContent`) | none declared | 2.43.0 (local); CI versions not recorded |
-| Catch2 (tests only) | `BUILD_TESTING=ON` | 3.3 (`find_package(Catch2 3.3)`, needed for `SKIP`) | 3.7.1 (fetched, pinned in `test/CMakeLists.txt`) |
-
-=======
 Reusable C++23 application template. Milestones 1-2 of 10 done: foundation and documentation.
 
 Documentation: start at [documentation/index.md](documentation/index.md).
@@ -52,7 +30,6 @@ prints `C++ compiler: <id> <version>`.
 
 - The compiler minimums live in `tool/cmake/ToolchainRequirements.cmake` and can be overridden with
   `-DPROJECT_MIN_<ID>_VERSION=<version>`. The warning never stops the build.
->>>>>>> master
 - Catch2: a system install of version 3.3 or newer is used if found; otherwise v3.7.1 is fetched
   from github.com, which needs network access on the first configure.
 - Runtime dependencies: none beyond the C++ standard library (`<filesystem>` is used).
@@ -64,18 +41,12 @@ prints `C++ compiler: <id> <version>`.
 cmake --preset test
 cmake --build --preset test
 ctest --preset test
-<<<<<<< HEAD
-./build/test/app configuration/default.conf
-```
-
-=======
 ./build/Linux/test/app configuration/default.conf
 ```
 
 Build files go to `build/<os>/<preset>/`, where `<os>` is CMake's host system name (`Linux`, `Darwin`
 for macOS, `Windows`, `FreeBSD`). The path above is for Linux.
 
->>>>>>> master
 Expected: all tests pass; the app prints `app 0.1.0`, `loaded 2 entries` and the entries.
 
 Other presets: `debug`, `release` (same three commands with the preset name).
@@ -117,11 +88,6 @@ To replace the example: swap the sources listed in `CMakeLists.txt` and `test/CM
 
 ## Status
 
-<<<<<<< HEAD
-Only milestone 1 exists. Docs, coverage, sanitizers, formatting, containers, CI and
-Commitlint arrive in later milestones; presets for them are added with each feature.
-=======
 Milestones 1 and 2 exist. Coverage, sanitizers, formatting, static analysis, Commitlint,
 containers, AI instructions and Jenkins arrive in later milestones; presets and docs for them
 are added with each feature.
->>>>>>> master
