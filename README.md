@@ -38,8 +38,11 @@ not captured; it appears in the CI Configure log (`The CXX compiler identificati
 cmake --preset test
 cmake --build --preset test
 ctest --preset test
-./build/test/app configuration/default.conf
+./build/Linux/test/app configuration/default.conf
 ```
+
+Build files go to `build/<os>/<preset>/`, where `<os>` is CMake's host system name (`Linux`, `Darwin`
+for macOS, `Windows`, `FreeBSD`). The path above is for Linux.
 
 Expected: all tests pass; the app prints `app 0.1.0`, `loaded 2 entries` and the entries.
 

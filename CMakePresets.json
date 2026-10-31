@@ -10,7 +10,7 @@
       "name": "base",
       "hidden": true,
       "generator": "Ninja",
-      "binaryDir": "${sourceDir}/build/${presetName}"
+      "binaryDir": "${sourceDir}/build/${hostSystemName}/${presetName}"
     },
     {
       "name": "debug",
@@ -42,7 +42,7 @@
       "name": "msvc",
       "displayName": "Windows, MSVC cl (run from a Developer Command Prompt)",
       "generator": "Ninja Multi-Config",
-      "binaryDir": "${sourceDir}/build/msvc",
+      "binaryDir": "${sourceDir}/build/${hostSystemName}/msvc",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",

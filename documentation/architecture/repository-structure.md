@@ -19,13 +19,14 @@ Milestone 2; later milestones extend it.
 │   ├── input/.gitkeep
 │   ├── midput/.gitkeep
 │   └── output/.gitkeep
-├── documentation/
+├── documentation/    (see the documentation index)
 ├── external/README.md
 ├── internal/
 │   ├── config.cpp
 │   ├── config.hpp
 │   ├── main.cpp
 │   └── result.hpp
+├── script/.gitkeep
 ├── test/
 │   ├── CMakeLists.txt
 │   └── config_test.cpp
@@ -34,7 +35,7 @@ Milestone 2; later milestones extend it.
     └── Portability.cmake
 ```
 
-`build/` appears after configuring and is not tracked.
+`build/<os>/<preset>/` appears after configuring and is not tracked.
 
 ## Directories
 
@@ -45,8 +46,9 @@ Milestone 2; later milestones extend it.
 | `tool/cmake/` | Reusable CMake modules | Added to `CMAKE_MODULE_PATH` by `CMakeLists.txt`. |
 | `configuration/` | Program configuration files | Sample file used by an integration test. |
 | `data/` | Program input (`input/`), intermediate (`midput/`) and output (`output/`) data | Contents of `midput/` and `output/` are ignored by Git. Unused by the example. |
+| `script/` | Developer automation scripts | Empty placeholder (`.gitkeep`); scripts are added when a workflow needs one. |
 | `external/` | Vendored third-party source | Empty; the `README.md` explains this. |
-| `documentation/` | Project documentation | Start at [index](../index.md). |
+| `documentation/` | Project documentation, including `architecture/decisions/` (ADRs) and `architecture/requirements/` (ASRs) | Start at [index](../index.md). |
 | `.github/workflows/` | GitHub Actions workflow | See below. |
 
 ## Files

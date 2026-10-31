@@ -42,14 +42,14 @@ The presets use CMake's default compiler. To select one on Linux, set it before 
 CXX=clang++ cmake --preset test
 ```
 
-Use a fresh `build/<preset>` directory when switching compilers; CMake caches the first choice.
+Use a fresh `build/<os>/<preset>` directory when switching compilers; CMake caches the first choice.
 
 ## Troubleshooting
 
 | Symptom | Fix |
 |---------|-----|
 | `cl` not found on Windows | You are not in a Developer Command Prompt. |
-| Wrong compiler used after changing `CXX` | Delete `build/<preset>` and configure again. |
+| Wrong compiler used after changing `CXX` | Delete `build/<os>/<preset>` and configure again. |
 
 ## Related
 

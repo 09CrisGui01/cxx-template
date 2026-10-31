@@ -6,7 +6,7 @@
 
 ## Presets
 
-Defined in `CMakePresets.json`. Binary directory is `build/<preset>`; `build/` is not tracked.
+Defined in `CMakePresets.json`. Binary directory is `build/<os>/<preset>`; `build/` is not tracked. See [Build directories](#build-directories).
 
 | Configure preset | Generator | Build type | Notes |
 |------------------|-----------|------------|-------|
@@ -26,6 +26,19 @@ ctest --preset <name>
 
 Test output is shown for failing tests (`outputOnFailure`).
 
+## Build directories
+
+Every preset builds into `build/<os>/<preset>/`, so one source tree can be built on several
+operating systems without the build directories colliding. `<os>` is the CMake host system name
+(`${hostSystemName}` in `CMakePresets.json`).
+
+| Host | `<os>` | Status |
+|------|--------|--------|
+| Linux | `Linux` | verified (`build/Linux/test`, `build/Linux/debug`) |
+| macOS | `Darwin` | from CMake's definition; not observed by the author |
+| Windows | `Windows` | from CMake's definition; not observed by the author |
+| FreeBSD | `FreeBSD` | from CMake's definition; not observed by the author |
+
 ## CMake options
 
 | Option | Default | Effect |
@@ -37,15 +50,15 @@ Test output is shown for failing tests (`outputOnFailure`).
 Without presets:
 
 ```sh
-cmake -S . -B build/manual -G Ninja -DCMAKE_BUILD_TYPE=Debug
-cmake --build build/manual
-ctest --test-dir build/manual
+cmake -S . -B build/Linux/manual -G Ninja -DCMAKE_BUILD_TYPE=Debug
+cmake --build build/Linux/manual
+ctest --test-dir build/Linux/manual
 ```
 
 ## Run the application
 
 ```sh
-./build/<preset>/app [config-file]
+./build/<os>/<preset>/app [config-file]
 ```
 
 | Exit status | Meaning |
@@ -55,7 +68,7 @@ ctest --test-dir build/manual
 | 2 | Usage error (more than one argument) |
 
 The config format and limits are described in [Architecture overview](../architecture/overview.md#example-application).
-On the multi-config `msvc` preset the executable is expected under `build/msvc/<Config>/`; this path
+On the multi-config `msvc` preset the executable is expected under `build/Windows/msvc/<Config>/`; this path
 is not verified.
 
 ## Select tests
@@ -63,7 +76,7 @@ is not verified.
 ```sh
 ctest --preset test -N                    # list tests without running
 ctest --preset test -R "byte order"       # run tests whose name matches a regex
-./build/test/test/app_tests "[portability]"   # run Catch2 tests by tag
+./build/Linux/test/test/app_tests "[portability]"   # run Catch2 tests by tag
 ```
 
 Catch2 tags in use: `[config]`, `[file]`, `[limits]`, `[portability]`. CTest does not receive the

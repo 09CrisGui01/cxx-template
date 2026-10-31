@@ -16,8 +16,10 @@ From the repository root:
 cmake --preset test
 cmake --build --preset test
 ctest --preset test
-./build/test/app configuration/default.conf
+./build/Linux/test/app configuration/default.conf
 ```
+
+The path is for Linux; on other systems replace `Linux` with your host system name (see [Build and run](development/build-and-run.md#build-directories)).
 
 On Windows, run the same steps from an "x64 Native Tools Command Prompt" with the `msvc` presets:
 
@@ -29,7 +31,7 @@ ctest --preset msvc-debug
 
 ## Expected results
 
-- Configure ends with `Build files have been written to: .../build/test`.
+- Configure ends with `Build files have been written to: .../build/Linux/test`.
 - Build finishes with no warnings (the `test` preset treats warnings as errors).
 - `ctest` ends with `100% tests passed, 0 tests failed out of 17` (the count grows as tests are added).
 - The application prints:
@@ -41,7 +43,7 @@ log.level=info
 name=cpp23-template
 ```
 
-Running `./build/test/app` with no argument prints only `app 0.1.0`. A missing file prints
+Running `./build/Linux/test/app` with no argument prints only `app 0.1.0`. A missing file prints
 `error: file not found` and exits with status 1.
 
 ## Troubleshooting
