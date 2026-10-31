@@ -1,12 +1,13 @@
 #pragma once
 
 #include <cstddef>
-#include <expected>
 #include <filesystem>
 #include <map>
 #include <optional>
 #include <string>
 #include <string_view>
+
+#include "result.hpp"
 
 namespace app {
 
@@ -45,16 +46,16 @@ class Config {
   }
 
  private:
-  friend std::expected<Config, Error> parse_config(std::string_view text);
+  friend Result<Config, Error> parse_config(std::string_view text);
   std::map<std::string, std::string, std::less<>> entries_;
 };
 
 // Format: one `key=value` per line. Blank lines and lines starting with '#'
 // are ignored. Whitespace around key and value is trimmed. Keys may contain
 // [A-Za-z0-9_.-]. Duplicate keys are rejected.
-[[nodiscard]] std::expected<Config, Error> parse_config(std::string_view text);
+[[nodiscard]] Result<Config, Error> parse_config(std::string_view text);
 
 // Reads a regular file (at most max_config_bytes) and parses it.
-[[nodiscard]] std::expected<Config, Error> load_config_file(const std::filesystem::path& path);
+[[nodiscard]] Result<Config, Error> load_config_file(const std::filesystem::path& path);
 
 }  // namespace app

@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <fstream>
-#include <iterator>
 #include <system_error>
 
 namespace app {
@@ -53,9 +52,9 @@ std::optional<std::string_view> Config::get(std::string_view key) const {
   return std::string_view{it->second};
 }
 
-std::expected<Config, Error> parse_config(std::string_view text) {
+Result<Config, Error> parse_config(std::string_view text) {
   if (text.size() > max_config_bytes) {
-    return std::unexpected(Error{ErrorCode::too_large, 0});
+    return Failure(Error{ErrorCode::too_large, 0});
   }
 
   Config config;
@@ -67,7 +66,7 @@ std::expected<Config, Error> parse_config(std::string_view text) {
     text = (newline == std::string_view::npos) ? std::string_view{} : text.substr(newline + 1);
 
     if (raw.size() > max_line_bytes) {
-      return std::unexpected(Error{ErrorCode::line_too_long, line_number});
+      return Failure(Error{ErrorCode::line_too_long, line_number});
     }
 
     const std::string_view line = trim(raw);
@@ -77,55 +76,57 @@ std::expected<Config, Error> parse_config(std::string_view text) {
 
     const auto separator = line.find('=');
     if (separator == std::string_view::npos) {
-      return std::unexpected(Error{ErrorCode::missing_separator, line_number});
+      return Failure(Error{ErrorCode::missing_separator, line_number});
     }
 
     const std::string_view key = trim(line.substr(0, separator));
     const std::string_view value = trim(line.substr(separator + 1));
     if (key.empty()) {
-      return std::unexpected(Error{ErrorCode::empty_key, line_number});
+      return Failure(Error{ErrorCode::empty_key, line_number});
     }
     if (!is_valid_key(key)) {
-      return std::unexpected(Error{ErrorCode::invalid_key, line_number});
+      return Failure(Error{ErrorCode::invalid_key, line_number});
     }
     if (config.entries_.size() >= max_entries) {
-      return std::unexpected(Error{ErrorCode::too_many_entries, line_number});
+      return Failure(Error{ErrorCode::too_many_entries, line_number});
     }
     const auto [it, inserted] = config.entries_.try_emplace(std::string{key}, value);
     if (!inserted) {
-      return std::unexpected(Error{ErrorCode::duplicate_key, line_number});
+      return Failure(Error{ErrorCode::duplicate_key, line_number});
     }
   }
   return config;
 }
 
-std::expected<Config, Error> load_config_file(const std::filesystem::path& path) {
+Result<Config, Error> load_config_file(const std::filesystem::path& path) {
   std::error_code ec;
   const auto status = std::filesystem::status(path, ec);
   if (ec || !std::filesystem::exists(status)) {
-    return std::unexpected(Error{ErrorCode::file_not_found, 0});
+    return Failure(Error{ErrorCode::file_not_found, 0});
   }
   if (!std::filesystem::is_regular_file(status)) {
-    return std::unexpected(Error{ErrorCode::not_a_regular_file, 0});
+    return Failure(Error{ErrorCode::not_a_regular_file, 0});
   }
   const auto size = std::filesystem::file_size(path, ec);
   if (ec) {
-    return std::unexpected(Error{ErrorCode::read_failed, 0});
+    return Failure(Error{ErrorCode::read_failed, 0});
   }
   if (size > max_config_bytes) {
-    return std::unexpected(Error{ErrorCode::too_large, 0});
+    return Failure(Error{ErrorCode::too_large, 0});
   }
 
   std::ifstream in{path, std::ios::binary};
   if (!in) {
-    return std::unexpected(Error{ErrorCode::read_failed, 0});
+    return Failure(Error{ErrorCode::read_failed, 0});
   }
-  // The size check above can race with writers; the parser re-checks the
-  // limit on the bytes actually read, so the bound holds regardless.
-  std::string text{std::istreambuf_iterator<char>{in}, std::istreambuf_iterator<char>{}};
+  // Read at most `size` bytes (already checked against the limit). If the
+  // file shrinks after the size check, gcount() reflects what was read.
+  std::string text(static_cast<std::size_t>(size), '\0');
+  in.read(text.data(), static_cast<std::streamsize>(text.size()));
   if (in.bad()) {
-    return std::unexpected(Error{ErrorCode::read_failed, 0});
+    return Failure(Error{ErrorCode::read_failed, 0});
   }
+  text.resize(static_cast<std::size_t>(in.gcount()));
   return parse_config(text);
 }
 
