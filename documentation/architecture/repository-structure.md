@@ -11,6 +11,7 @@ Milestone 2; later milestones extend it.
 ├── .gitignore
 ├── .github/workflows/ci.yml
 ├── CMakeLists.txt
+├── CHANGELOG.md
 ├── CMakePresets.json
 ├── README.md
 ├── configuration/default.conf
@@ -61,6 +62,7 @@ Milestone 2; later milestones extend it.
 | `.github/workflows/ci.yml` | CI: Linux GCC and Clang, macOS, Windows MSVC (via `build-test` job) and FreeBSD (`freebsd` job); all Debug |
 | `.editorconfig` | Editor settings: UTF-8, LF, 2-space indent, final newline |
 | `.gitignore` | Ignores `build/`, coverage output, runtime data, editor files, common secret file names |
+| `CHANGELOG.md` | Notable changes, Keep a Changelog format |
 | `README.md` | Overview, dependencies, quick start, platform support |
 | `internal/result.hpp` | `Result<T, E>`: value-or-error type used instead of `std::expected` ([ADR 0001](decisions/0001-result-type-instead-of-std-expected.md)) |
 | `tool/cmake/CompilerWarnings.cmake` | `project_set_warnings(target)`: GCC, Clang and MSVC warning flags |
@@ -72,7 +74,7 @@ Milestone 2; later milestones extend it.
 
 The original specification lists further files (`Dockerfile`, `Jenkinsfile`, `AGENTS.md`,
 `.clang-format`, `.clang-tidy`, `.commitlintrc.json`, `package.json`, `CONTRIBUTING.md`,
-`SECURITY.md`, `CHANGELOG.md`, `LICENSE.md`, `CMakeUserPresets.json.example`, and others). They are
+`SECURITY.md`, `LICENSE.md`, `CMakeUserPresets.json.example`, and others). They are
 added by the milestone that needs them, not created empty.
 
 ## Related
