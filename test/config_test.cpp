@@ -153,3 +153,58 @@ TEST_CASE("to_string covers every error code", "[config]") {
     CHECK(app::to_string(code) != "unknown error");
   }
 }
+
+TEST_CASE("parse_config skips a leading UTF-8 byte order mark", "[config][portability]") {
+  const auto result = app::parse_config("\xEF\xBB\xBF" "k=v\n");
+  REQUIRE(result.has_value());
+  CHECK(result->get("k") == "v");
+}
+
+TEST_CASE("parse_config rejects a byte order mark that is not at the start", "[config][portability]") {
+  const auto result = app::parse_config("a=1\n\xEF\xBB\xBF" "b=2\n");
+  REQUIRE_FALSE(result.has_value());
+  CHECK(result.error().code == ErrorCode::invalid_key);
+  CHECK(result.error().line == 2);
+}
+
+TEST_CASE("load_config_file reads CRLF files byte-exactly", "[config][file][portability]") {
+  const TempDir dir;
+  const auto file = dir.path() / "crlf.conf";
+  {
+    std::ofstream out{file, std::ios::binary};
+    out << "a=1\r\nb=2\r\n";
+  }
+  const auto result = app::load_config_file(file);
+  REQUIRE(result.has_value());
+  CHECK(result->get("a") == "1");
+  CHECK(result->get("b") == "2");
+}
+
+TEST_CASE("load_config_file handles spaces and non-ASCII in paths", "[config][file][portability]") {
+  const TempDir dir;
+  const auto file = dir.path() / std::filesystem::path{u8"конфиг with spaces.conf"};
+  std::ofstream{file} << "x=1\n";
+  const auto result = app::load_config_file(file);
+  REQUIRE(result.has_value());
+  CHECK(result->get("x") == "1");
+}
+
+TEST_CASE("load_config_file follows symlinks, reports dangling ones", "[config][file][portability]") {
+  const TempDir dir;
+  const auto target = dir.path() / "target.conf";
+  std::ofstream{target} << "x=1\n";
+  const auto link = dir.path() / "link.conf";
+  std::error_code ec;
+  std::filesystem::create_symlink(target, link, ec);
+  if (ec) {
+    SKIP("symlinks unavailable on this platform or account");
+  }
+  const auto ok = app::load_config_file(link);
+  REQUIRE(ok.has_value());
+  CHECK(ok->get("x") == "1");
+
+  std::filesystem::remove(target);
+  const auto dangling = app::load_config_file(link);
+  REQUIRE_FALSE(dangling.has_value());
+  CHECK(dangling.error().code == ErrorCode::file_not_found);
+}

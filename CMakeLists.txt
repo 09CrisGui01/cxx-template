@@ -20,6 +20,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(PROJECT_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
 include(CompilerWarnings)
+include(Portability)
 
 # Library: all logic lives here so tests link against it.
 add_library(app_core STATIC
@@ -28,12 +29,14 @@ add_library(${PROJECT_NAME}::core ALIAS app_core)
 target_include_directories(app_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/internal")
 target_compile_features(app_core PUBLIC cxx_std_23)
 project_set_warnings(app_core)
+project_set_portability(app_core)
 
 # Executable: thin wrapper around the library.
 add_executable(app internal/main.cpp)
 target_link_libraries(app PRIVATE app_core)
 target_compile_definitions(app PRIVATE APP_VERSION="${PROJECT_VERSION}")
 project_set_warnings(app)
+project_set_portability(app)
 
 include(CTest) # defines BUILD_TESTING (default ON)
 if(BUILD_TESTING)

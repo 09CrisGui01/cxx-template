@@ -17,6 +17,7 @@ include(Catch)
 add_executable(app_tests config_test.cpp)
 target_link_libraries(app_tests PRIVATE app_core Catch2::Catch2WithMain)
 project_set_warnings(app_tests)
+project_set_portability(app_tests)
 
 # Each Catch2 test case becomes its own CTest test.
 catch_discover_tests(app_tests)

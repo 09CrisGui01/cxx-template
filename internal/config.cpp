@@ -57,6 +57,12 @@ Result<Config, Error> parse_config(std::string_view text) {
     return Failure(Error{ErrorCode::too_large, 0});
   }
 
+  // Editors on Windows commonly prepend a UTF-8 byte order mark.
+  constexpr std::string_view utf8_bom = "\xEF\xBB\xBF";
+  if (text.starts_with(utf8_bom)) {
+    text.remove_prefix(utf8_bom.size());
+  }
+
   Config config;
   std::size_t line_number = 0;
   while (!text.empty()) {

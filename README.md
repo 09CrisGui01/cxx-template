@@ -26,6 +26,24 @@ Expected: all tests pass; the app prints `app 0.1.0`, `loaded 2 entries` and the
 
 Other presets: `debug`, `release` (same three commands with the preset name).
 
+## Platform support
+
+| Platform | Compiler | Preset | Status |
+|----------|----------|--------|--------|
+| Linux | GCC 13 | `test`, `debug`, `release` | verified locally (build + 17/17 tests, Debug and Release) |
+| Linux | Clang 18 | same | verified locally (Debug and Release, `-Werror`) |
+| Windows | MSVC (VS 2022) | `msvc` + `msvc-debug`/`msvc-release` | **not verified**: configured, runs in CI only |
+| macOS | Apple Clang | `debug`/`release` (needs `brew install ninja`) | **not verified**: runs in CI only |
+| FreeBSD | base Clang | `debug`/`release` (needs `pkg install cmake ninja git`) | **not verified**: runs in CI only |
+| OpenBSD, NetBSD | any | any | not covered by CI |
+
+CI matrix: `.github/workflows/ci.yml`. A platform counts as verified only after its job passes.
+Windows: run from a Developer Prompt or let the Visual Studio generator locate the toolchain:
+`cmake --preset msvc`, `cmake --build --preset msvc-debug`, `ctest --preset msvc-debug`.
+Without Ninja, configure manually: `cmake -S . -B build/make -G "Unix Makefiles"`.
+
+Portability tests (tag `[portability]`): UTF-8 BOM, CRLF files, spaces and non-ASCII paths, symlinks.
+
 ## Layout
 
 | Path | Purpose |
