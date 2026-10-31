@@ -17,26 +17,29 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: linux-gcc,    os: ubuntu-latest,  preset: test,  cc: gcc,   cxx: g++ }
-          - { name: linux-clang,  os: ubuntu-latest,  preset: test,  cc: clang, cxx: clang++ }
-          - { name: macos-clang,  os: macos-latest,   preset: debug }
-          - { name: windows-msvc, os: windows-latest, preset: msvc-debug, msvc: true }
+          - { name: linux-gcc,    os: ubuntu-latest,  configure: test,  preset: test,       cc: gcc,   cxx: g++ }
+          - { name: linux-clang,  os: ubuntu-latest,  configure: test,  preset: test,       cc: clang, cxx: clang++ }
+          - { name: macos-clang,  os: macos-latest,   configure: debug, preset: debug }
+          - { name: windows-msvc, os: windows-latest, configure: msvc,  preset: msvc-debug, msvc: true }
     steps:
       - uses: actions/checkout@v4
+
+      - name: Select compiler
+        if: matrix.cxx
+        run: |
+          echo "CC=${{ matrix.cc }}" >> "$GITHUB_ENV"
+          echo "CXX=${{ matrix.cxx }}" >> "$GITHUB_ENV"
 
       - name: Install Ninja (macOS)
         if: runner.os == 'macOS'
         run: brew install ninja
 
+      - name: Set up MSVC environment
+        if: matrix.msvc
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Configure
-        shell: bash
-        run: |
-          if [ -n "${{ matrix.cxx }}" ]; then export CC=${{ matrix.cc }} CXX=${{ matrix.cxx }}; fi
-          if [ "${{ matrix.msvc }}" = "true" ]; then
-            cmake --preset msvc
-          else
-            cmake --preset ${{ matrix.preset }}
-          fi
+        run: cmake --preset ${{ matrix.configure }}
 
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}

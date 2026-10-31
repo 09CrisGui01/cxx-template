@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <random>
 #include <string>
 
 #include "config.hpp"
@@ -14,12 +15,9 @@ namespace {
 class TempDir {
  public:
   TempDir() {
-    static int counter = 0;
-    path_ = std::filesystem::temp_directory_path() /
-            ("app_tests_" + std::to_string(::std::filesystem::file_time_type::clock::now()
-                                               .time_since_epoch()
-                                               .count()) +
-             "_" + std::to_string(counter++));
+    std::random_device rd;
+    const auto id = (static_cast<unsigned long long>(rd()) << 32U) | rd();
+    path_ = std::filesystem::temp_directory_path() / ("app_tests_" + std::to_string(id));
     std::filesystem::create_directories(path_);
   }
   ~TempDir() {
