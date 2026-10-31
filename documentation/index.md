@@ -17,9 +17,15 @@ canonical dependency table and platform support table; other pages link to it in
 | [Architecture overview](architecture/overview.md) | Components, CMake targets, data flow, test architecture |
 | [Repository structure](architecture/repository-structure.md) | Every directory and tracked file, and why it exists |
 | [ADR template](adr-template.md) | Template for architecture decision records |
+| [ASR template](asr-template.md) | Template for architecturally significant requirements |
 | [ADR 0001](architecture/decisions/0001-result-type-instead-of-std-expected.md) | `Result` type instead of `std::expected` |
 | [ADR 0002](architecture/decisions/0002-catch2-test-framework.md) | Catch2 as the test framework |
 | [ADR 0003](architecture/decisions/0003-msvc-with-ninja-multi-config.md) | MSVC built with Ninja Multi-Config and `cl` |
+| [ASR 0001](architecture/requirements/0001-clean-checkout-reproducibility.md) | Clean-checkout reproducibility |
+| [ASR 0002](architecture/requirements/0002-minimal-core-toolchain.md) | Minimal core toolchain |
+| [ASR 0003](architecture/requirements/0003-bounded-untrusted-input.md) | Bounded untrusted input |
+| [ASR 0004](architecture/requirements/0004-multi-platform-portability.md) | Multi-platform portability |
+| [ASR 0005](architecture/requirements/0005-deterministic-self-contained-tests.md) | Deterministic, self-contained tests |
 
 ## Not yet written
 
@@ -35,6 +41,12 @@ its milestone and is added to the table above at that time.
 | AI-assisted development (`AGENTS.md`) | 7 |
 | Jenkins | 8 |
 | Dependency scanning, security, troubleshooting index | 9 |
+
+## Requirements and decisions
+
+ASRs (`architecture/requirements/`) record what the architecture must achieve and how that is
+verified. ADRs (`architecture/decisions/`) record the design choices that satisfy them. Both use
+numbered files and a template.
 
 ## Documentation conventions
 
