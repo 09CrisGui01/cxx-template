@@ -11,9 +11,9 @@ local files or external services, and that report failure through a nonzero exit
 
 ## Requirement
 
-Quality attribute: testability. Every automated test shall produce the same result on every run,
-shall need no network and no file other than those it creates or the tracked sample
-`configuration/default.conf`, and shall run through CTest so that a failure makes `ctest` exit
+Quality attribute: testability. Every automated test MUST produce the same result on every run,
+MUST need no network and no file other than those it creates or the tracked sample
+`configuration/default.conf`, and MUST run through CTest so that a failure makes `ctest` exit
 nonzero.
 
 ## Verification

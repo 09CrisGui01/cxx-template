@@ -12,10 +12,10 @@ which is the only untrusted input it has.
 
 ## Requirement
 
-Quality attribute: security and reliability. Input read from a file shall be size-checked before it
-is processed, and every limit shall be enforced at its exact boundary: total size at most 1 MiB,
-line length at most 4096 bytes, at most 1024 entries. Violations and malformed lines shall be
-returned as error values with a code (and a line number where applicable); they shall not crash,
+Quality attribute: security and reliability. Input read from a file MUST be size-checked before it
+is processed, and every limit MUST be enforced at its exact boundary: total size at most 1 MiB,
+line length at most 4096 bytes, at most 1024 entries. Violations and malformed lines MUST be
+returned as error values with a code (and a line number where applicable); they MUST NOT crash,
 throw or exhibit undefined behavior.
 
 ## Verification

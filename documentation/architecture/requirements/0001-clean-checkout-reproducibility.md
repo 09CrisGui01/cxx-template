@@ -13,7 +13,7 @@ install the documented prerequisites, and build and test without hidden configur
 ## Requirement
 
 Quality attribute: reproducibility. After a fresh clone and installation of the documented
-prerequisites, the commands in [Getting started](../../getting-started.md) shall configure, build
+prerequisites, the commands in [Getting started](../../getting-started.md) MUST configure, build
 and test the project without untracked files, developer-specific absolute paths, undocumented
 environment variables, existing build directories or embedded credentials. Acceptance: the commands
 succeed in a new directory.

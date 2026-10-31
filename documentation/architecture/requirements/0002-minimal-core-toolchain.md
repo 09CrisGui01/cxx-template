@@ -12,7 +12,7 @@ Node.js, Python, a documentation generator or AI tools, and that optional toolin
 ## Requirement
 
 Quality attribute: simplicity of the build environment. Configuring, building and testing the
-default targets shall need only a C++23 compiler, CMake, Ninja (used by the presets) and Git (used
+default targets MUST need only a C++23 compiler, CMake, Ninja (used by the presets) and Git (used
 by `FetchContent` for Catch2). Acceptance: no build or test file invokes Docker, Podman, Jenkins,
 Node.js or Python.
 

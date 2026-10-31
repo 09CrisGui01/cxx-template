@@ -23,7 +23,7 @@ which forces shape it. State facts, and say which were verified.
 
 ## Requirement
 
-One testable statement ("The system shall ..."), with the quality attribute it belongs to and a
+One testable statement ("The system MUST ..."), with the quality attribute it belongs to and a
 measurable acceptance criterion.
 
 ## Verification

@@ -12,7 +12,7 @@ restricted the BSD family to FreeBSD only.
 
 ## Requirement
 
-Quality attribute: portability. The default targets shall build without warnings-as-errors failures
+Quality attribute: portability. The default targets MUST build without warnings-as-errors failures
 and pass all tests on: Linux with GCC and Clang, macOS with Apple Clang, Windows with MSVC, and
 FreeBSD with its base Clang. Acceptance: the corresponding CI job passes for Debug and Release.
 
