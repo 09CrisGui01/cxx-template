@@ -24,7 +24,7 @@ Defined in `CMakeLists.txt` and `test/CMakeLists.txt`.
 | Target | Type | Sources | Notes |
 |--------|------|---------|-------|
 | `app_core` (alias `cpp23_template::core`) | static library | `internal/config.cpp` | Public include directory `internal/`; `cxx_std_23` is a public compile feature |
-| `app` | executable | `internal/main.cpp` | Links `app_core`; defines `APP_VERSION` from `project(VERSION)` |
+| `app` | executable | `internal/main.cpp` | Links `app_core`; defines `APP_VERSION` (from `project(VERSION)`), `APP_VERSION_TAG`, `APP_VERSION_METADATA` and `APP_VERSION_FULL` (from `tool/cmake/Version.cmake`); `--version` prints the last |
 | `app_tests` | executable | `test/config_test.cpp` | Links `app_core` and `Catch2::Catch2WithMain`; only exists when `BUILD_TESTING=ON` |
 
 Every target calls `project_set_warnings()` and `project_set_portability()`. Both apply flags
@@ -65,7 +65,7 @@ Error handling convention: expected failures are values (`Result`, `ErrorCode`),
 ## Test architecture
 
 - **Unit tests:** Catch2 cases in `test/config_test.cpp`, discovered by `catch_discover_tests`, so each case is one CTest test. They cover normal input, invalid input, boundaries of every limit, file failures and platform behaviors (tag `[portability]`).
-- **Integration tests:** four CTest tests run the built `app`: no arguments, the sample file `configuration/default.conf` (expects `loaded 2 entries`), a missing file (must fail) and too many arguments (must fail).
+- **Integration tests:** five CTest tests run the built `app`: no arguments, `--version` (checks the `X.Y.Z[-TAG]+METADATA` shape), the sample file `configuration/default.conf` (expects `loaded 2 entries`), a missing file (must fail) and too many arguments (must fail).
 - **Isolation:** tests that need files create them in a unique temporary directory (`TempDir` helper) and remove it afterwards. They use no external services and no files outside the repository's `configuration/` sample.
 - **Dependency:** Catch2 is used only by `test/`; production targets do not link it. See [ADR 0002](decisions/0002-catch2-test-framework.md).
 
@@ -78,10 +78,10 @@ Not yet validated end-to-end; a full rename check is part of Milestone 10.
 1. Replace `internal/config.*` with your sources and update the file list in `add_library(app_core ...)` in `CMakeLists.txt`.
 2. Replace `internal/main.cpp` (keep the `app` target, or rename it everywhere it appears in both `CMakeLists.txt` files).
 3. Replace `test/config_test.cpp` and update `add_executable(app_tests ...)` in `test/CMakeLists.txt`.
-4. Update or delete the four `app.*` integration tests in `test/CMakeLists.txt`; they reference `configuration/default.conf` and the text `loaded 2 entries`.
+4. Update or delete the five `app.*` integration tests in `test/CMakeLists.txt`; they reference `configuration/default.conf` and the text `loaded 2 entries`.
 5. Remove `configuration/default.conf` and `internal/result.hpp` if unused.
 6. Change `project(cpp23_template ...)` and `VERSION` in `CMakeLists.txt` to your name and version.
-7. Rebuild with a clean directory: `cmake --preset test`, `cmake --build --preset test`, `ctest --preset test`.
+7. Rebuild with a clean directory: `cmake --preset beta`, `cmake --build --preset beta`, `ctest --preset beta`.
 
 ## Related
 

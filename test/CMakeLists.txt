@@ -1,11 +1,6 @@
 # Test dependency: Catch2 v3. Prefer a system install; otherwise fetch a pinned
-<<<<<<< HEAD
-# release. Fetching needs network access on first configure (see
-# documentation/tooling/dependency-management.md once written).
-=======
 # release. Fetching needs network access on first configure; see the
 # dependency table in README.md and documentation/architecture/decisions/0002-catch2-test-framework.md.
->>>>>>> master
 find_package(Catch2 3.3 QUIET)
 if(NOT Catch2_FOUND)
   include(FetchContent)
@@ -34,6 +29,18 @@ add_test(NAME app.runs_without_arguments COMMAND app)
 add_test(NAME app.loads_sample_configuration COMMAND app "${sample_conf}")
 set_tests_properties(app.loads_sample_configuration PROPERTIES
   PASS_REGULAR_EXPRESSION "loaded 2 entries")
+
+# --version prints X.Y.Z[-TAG]+<timestamp>.<preset>.<os>.<arch>.<toolchain>.
+string(REPLACE "." "\\." version_re "${PROJECT_VERSION}")
+if(PROJECT_VERSION_TAG)
+  set(tag_re "-${PROJECT_VERSION_TAG}")
+else()
+  set(tag_re "")
+endif()
+set(id_re "[0-9A-Za-z-]+")
+add_test(NAME app.prints_full_version COMMAND app --version)
+set_tests_properties(app.prints_full_version PROPERTIES PASS_REGULAR_EXPRESSION
+  "^${version_re}${tag_re}\\+[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\\.${id_re}\\.${id_re}\\.${id_re}\\.${id_re}")
 
 add_test(NAME app.rejects_missing_file COMMAND app "${CMAKE_CURRENT_BINARY_DIR}/does-not-exist.conf")
 set_tests_properties(app.rejects_missing_file PROPERTIES WILL_FAIL TRUE)

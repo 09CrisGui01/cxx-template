@@ -1,6 +1,6 @@
 # ADR 0004: Semantic Versioning with Greek stage tags
 
-- **Status:** Accepted
+- **Status:** Superseded by [ADR 0006](0006-versioning-without-final-release-tag.md)
 - **Date:** 2026-10-31
 
 ## Context

@@ -34,7 +34,8 @@ Milestone 2; later milestones extend it.
 └── tool/cmake/
     ├── CompilerWarnings.cmake
     ├── Portability.cmake
-    └── ToolchainRequirements.cmake
+    ├── ToolchainRequirements.cmake
+    └── Version.cmake
 ```
 
 `build/<os>/<preset>/` appears after configuring and is not tracked.
@@ -58,7 +59,7 @@ Milestone 2; later milestones extend it.
 | File | Purpose |
 |------|---------|
 | `CMakeLists.txt` | Project definition, targets, language standard, option `PROJECT_WARNINGS_AS_ERRORS`, includes `test/` |
-| `CMakePresets.json` | Presets `debug`, `release`, `test`, `msvc` and matching build and test presets |
+| `CMakePresets.json` | Presets `alpha`, `beta`, `gamma`, `msvc` and matching build and test presets |
 | `.github/workflows/ci.yml` | CI: Linux GCC and Clang, macOS, Windows MSVC (via `build-test` job) and FreeBSD (`freebsd` job); all Debug |
 | `.editorconfig` | Editor settings: UTF-8, LF, 2-space indent, final newline |
 | `.gitignore` | Ignores `build/`, coverage output, runtime data, editor files, common secret file names |
@@ -67,6 +68,7 @@ Milestone 2; later milestones extend it.
 | `internal/result.hpp` | `Result<T, E>`: value-or-error type used instead of `std::expected` ([ADR 0001](decisions/0001-result-type-instead-of-std-expected.md)) |
 | `tool/cmake/CompilerWarnings.cmake` | `project_set_warnings(target)`: GCC, Clang and MSVC warning flags |
 | `tool/cmake/ToolchainRequirements.cmake` | Soft minimum compiler versions and `project_check_toolchain()`, which logs the compiler and warns below the minimum |
+| `tool/cmake/Version.cmake` | Validates `PROJECT_VERSION_TAG` and builds `PROJECT_VERSION_TAGGED`, `PROJECT_VERSION_METADATA` and `PROJECT_VERSION_FULL` ([ADR 0006](decisions/0006-versioning-without-final-release-tag.md)) |
 | `tool/cmake/Portability.cmake` | `project_set_portability(target)`: MSVC-only flags `/utf-8`, `/Zc:__cplusplus`, `NOMINMAX` |
 | `data/*/.gitkeep` | Keeps empty directories in Git |
 

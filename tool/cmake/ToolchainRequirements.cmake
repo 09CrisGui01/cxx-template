@@ -4,7 +4,7 @@
 # prints a warning and continues. The minimums are the lowest versions this
 # project was verified with, rounded down to the minor release; see the
 # dependency table in README.md. Override on the command line, for example
-#   cmake --preset debug -DPROJECT_MIN_GNU_VERSION=12.0
+#   cmake --preset alpha -DPROJECT_MIN_GNU_VERSION=12.0
 # The variable name is PROJECT_MIN_<COMPILER_ID>_VERSION.
 
 set(PROJECT_MIN_GNU_VERSION "13.0" CACHE STRING

@@ -38,28 +38,28 @@ prints `C++ compiler: <id> <version>`.
 ## Quick start
 
 ```sh
-cmake --preset test
-cmake --build --preset test
-ctest --preset test
-./build/Linux/test/app configuration/default.conf
+cmake --preset beta
+cmake --build --preset beta
+ctest --preset beta
+./build/Linux/beta/app configuration/default.conf
 ```
 
 Build files go to `build/<os>/<preset>/`, where `<os>` is CMake's host system name (`Linux`, `Darwin`
 for macOS, `Windows`, `FreeBSD`). The path above is for Linux.
 
-Expected: all tests pass; the app prints `app 0.1.0`, `loaded 2 entries` and the entries.
+Expected: all tests pass; the app prints `app 0.1.0`, `loaded 2 entries` and the entries. `app --version` prints the full version with stage tag and metadata ([Conventions](documentation/development/conventions.md#versions)).
 
-Other presets: `debug`, `release` (same three commands with the preset name).
+Other presets: `alpha` (development, Debug), `gamma` (pre-release, Release); same three commands with the preset name.
 
 ## Platform support
 
 | Platform | Compiler | Preset | Status |
 |----------|----------|--------|--------|
-| Linux | GCC 13.3 | `test`, `debug`, `release` | verified locally: Debug and Release, 17/17 tests. CI runs `test` |
-| Linux | Clang 18.1 | same | verified locally: Debug and Release with `-Werror`, 17/17 tests. CI runs `test` |
+| Linux | GCC 13.3 | `beta`, `alpha`, `gamma` | verified locally: Debug and Release, 18/18 tests. CI runs `beta` |
+| Linux | Clang 18.1 | same | verified locally: `alpha` and `gamma` with `-Werror`, 18/18 tests. CI runs `beta` |
 | Windows | MSVC `cl` (Ninja Multi-Config) | `msvc`, `msvc-debug` | CI passed (Debug only). Release not run |
-| macOS | Apple Clang | `debug` (needs `brew install ninja`) | CI passed (Debug only). Release not run |
-| FreeBSD | base Clang | `debug` (needs `pkg install cmake ninja git`) | CI passed (Debug only). Release not run |
+| macOS | Apple Clang | `alpha` (needs `brew install ninja`) | CI passed (Debug only). Release not run |
+| FreeBSD | base Clang | `alpha` (needs `pkg install cmake ninja git`) | CI passed (Debug only). Release not run |
 
 FreeBSD is the only BSD supported.
 

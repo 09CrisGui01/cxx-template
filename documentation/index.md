@@ -23,8 +23,10 @@ canonical dependency table and platform support table; other pages link to it in
 | [ADR 0001](architecture/decisions/0001-result-type-instead-of-std-expected.md) | `Result` type instead of `std::expected` |
 | [ADR 0002](architecture/decisions/0002-catch2-test-framework.md) | Catch2 as the test framework |
 | [ADR 0003](architecture/decisions/0003-msvc-with-ninja-multi-config.md) | MSVC built with Ninja Multi-Config and `cl` |
-| [ADR 0004](architecture/decisions/0004-semver-versioning-with-greek-stage-tags.md) | Semantic Versioning with Greek stage tags |
+| [ADR 0004](architecture/decisions/0004-semver-versioning-with-greek-stage-tags.md) | Semantic Versioning with Greek stage tags (superseded by ADR 0006) |
 | [ADR 0005](architecture/decisions/0005-branching-and-merge-strategy.md) | Branching and merge strategy |
+| [ADR 0006](architecture/decisions/0006-versioning-without-final-release-tag.md) | Versioning without a final release tag |
+| [ADR 0007](architecture/decisions/0007-default-branch-and-topic-branch-names.md) | Default branch and topic branch names |
 | [ASR 0001](architecture/requirements/0001-clean-checkout-reproducibility.md) | Clean-checkout reproducibility |
 | [ASR 0002](architecture/requirements/0002-minimal-core-toolchain.md) | Minimal core toolchain |
 | [ASR 0003](architecture/requirements/0003-bounded-untrusted-input.md) | Bounded untrusted input |

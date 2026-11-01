@@ -17,9 +17,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: linux-gcc,    os: ubuntu-latest,  configure: test,  preset: test,       cc: gcc,   cxx: g++ }
-          - { name: linux-clang,  os: ubuntu-latest,  configure: test,  preset: test,       cc: clang, cxx: clang++ }
-          - { name: macos-clang,  os: macos-latest,   configure: debug, preset: debug }
+          - { name: linux-gcc,    os: ubuntu-latest,  configure: beta,  preset: beta,       cc: gcc,   cxx: g++ }
+          - { name: linux-clang,  os: ubuntu-latest,  configure: beta,  preset: beta,       cc: clang, cxx: clang++ }
+          - { name: macos-clang,  os: macos-latest,   configure: alpha, preset: alpha }
           - { name: windows-msvc, os: windows-latest, configure: msvc,  preset: msvc-debug, msvc: true }
     steps:
       - uses: actions/checkout@v4
@@ -59,6 +59,6 @@ jobs:
           usesh: true
           prepare: pkg install -y cmake ninja git
           run: |
-            cmake --preset debug
-            cmake --build --preset debug
-            ctest --preset debug
+            cmake --preset alpha
+            cmake --build --preset alpha
+            ctest --preset alpha

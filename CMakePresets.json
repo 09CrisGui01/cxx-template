@@ -10,14 +10,13 @@
       "name": "base",
       "hidden": true,
       "generator": "Ninja",
-<<<<<<< HEAD
-      "binaryDir": "${sourceDir}/build/${presetName}"
-=======
-      "binaryDir": "${sourceDir}/build/${hostSystemName}/${presetName}"
->>>>>>> master
+      "binaryDir": "${sourceDir}/build/${hostSystemName}/${presetName}",
+      "cacheVariables": {
+        "PROJECT_BUILD_PRESET": "${presetName}"
+      }
     },
     {
-      "name": "debug",
+      "name": "alpha",
       "inherits": "base",
       "displayName": "Debug",
       "cacheVariables": {
@@ -25,7 +24,7 @@
       }
     },
     {
-      "name": "release",
+      "name": "gamma",
       "inherits": "base",
       "displayName": "Release",
       "cacheVariables": {
@@ -33,7 +32,7 @@
       }
     },
     {
-      "name": "test",
+      "name": "beta",
       "inherits": "base",
       "displayName": "Debug with tests and warnings-as-errors",
       "cacheVariables": {
@@ -46,33 +45,30 @@
       "name": "msvc",
       "displayName": "Windows, MSVC cl (run from a Developer Command Prompt)",
       "generator": "Ninja Multi-Config",
-<<<<<<< HEAD
-      "binaryDir": "${sourceDir}/build/msvc",
-=======
       "binaryDir": "${sourceDir}/build/${hostSystemName}/msvc",
->>>>>>> master
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
       },
       "cacheVariables": {
-        "CMAKE_CXX_COMPILER": "cl"
+        "CMAKE_CXX_COMPILER": "cl",
+        "PROJECT_BUILD_PRESET": "${presetName}"
       }
     }
   ],
   "buildPresets": [
     {
-      "name": "debug",
-      "configurePreset": "debug"
+      "name": "alpha",
+      "configurePreset": "alpha"
     },
     {
-      "name": "release",
-      "configurePreset": "release"
+      "name": "gamma",
+      "configurePreset": "gamma"
     },
     {
-      "name": "test",
-      "configurePreset": "test"
+      "name": "beta",
+      "configurePreset": "beta"
     },
     {
       "name": "msvc-debug",
@@ -87,22 +83,22 @@
   ],
   "testPresets": [
     {
-      "name": "debug",
-      "configurePreset": "debug",
+      "name": "alpha",
+      "configurePreset": "alpha",
       "output": {
         "outputOnFailure": true
       }
     },
     {
-      "name": "release",
-      "configurePreset": "release",
+      "name": "gamma",
+      "configurePreset": "gamma",
       "output": {
         "outputOnFailure": true
       }
     },
     {
-      "name": "test",
-      "configurePreset": "test",
+      "name": "beta",
+      "configurePreset": "beta",
       "output": {
         "outputOnFailure": true
       }

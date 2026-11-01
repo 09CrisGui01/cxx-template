@@ -21,12 +21,16 @@ option(PROJECT_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
 include(CompilerWarnings)
 include(Portability)
-<<<<<<< HEAD
-=======
 include(ToolchainRequirements)
 
 project_check_toolchain()
->>>>>>> master
+
+# Stage of the current development: alpha, beta, gamma, or empty for a final
+# release. Override with -DPROJECT_VERSION_TAG=<tag>.
+if(NOT DEFINED PROJECT_VERSION_TAG)
+  set(PROJECT_VERSION_TAG alpha)
+endif()
+include(Version)
 
 # Library: all logic lives here so tests link against it.
 add_library(app_core STATIC
@@ -40,7 +44,11 @@ project_set_portability(app_core)
 # Executable: thin wrapper around the library.
 add_executable(app internal/main.cpp)
 target_link_libraries(app PRIVATE app_core)
-target_compile_definitions(app PRIVATE APP_VERSION="${PROJECT_VERSION}")
+target_compile_definitions(app PRIVATE
+  APP_VERSION="${PROJECT_VERSION}"
+  APP_VERSION_TAG="${PROJECT_VERSION_TAG}"
+  APP_VERSION_METADATA="${PROJECT_VERSION_METADATA}"
+  APP_VERSION_FULL="${PROJECT_VERSION_FULL}")
 project_set_warnings(app)
 project_set_portability(app)
 

@@ -40,7 +40,7 @@ Each command should print a version. Compare against the README dependency table
 The presets use CMake's default compiler. To select one on Linux, set it before the first configure:
 
 ```sh
-CXX=clang++ cmake --preset test
+CXX=clang++ cmake --preset beta
 ```
 
 Use a fresh `build/<os>/<preset>` directory when switching compilers; CMake caches the first choice.

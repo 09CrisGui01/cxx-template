@@ -1,10 +1,16 @@
 #include <cstdlib>
 #include <iostream>
+#include <string_view>
 
 #include "config.hpp"
 
 #ifndef APP_VERSION
 #define APP_VERSION "unknown"
+#endif
+
+// Full version: X.Y.Z-TAG+METADATA (see documentation/development/conventions.md).
+#ifndef APP_VERSION_FULL
+#define APP_VERSION_FULL APP_VERSION
 #endif
 
 namespace {
@@ -15,8 +21,13 @@ constexpr int exit_usage = 2;
 
 int main(int argc, char* argv[]) {
   if (argc > 2) {
-    std::cerr << "usage: app [config-file]\n";
+    std::cerr << "usage: app [--version | config-file]\n";
     return exit_usage;
+  }
+
+  if (argc == 2 && std::string_view{argv[1]} == "--version") {
+    std::cout << APP_VERSION_FULL << '\n';
+    return exit_ok;
   }
 
   std::cout << "app " << APP_VERSION << '\n';

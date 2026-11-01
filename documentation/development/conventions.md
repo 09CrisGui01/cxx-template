@@ -25,11 +25,12 @@ A convention marked "manual" is checked by reviewers until the tool that enforce
 | Convention | Enforced by | Status |
 |------------|-------------|--------|
 | Commit message format | Commitlint | not configured yet (Milestone 5); manual |
-| Branch names, merge method, review flow | Host repository settings, review | manual; settings are not stored in the repository |
-| Tag and version format | none | manual; no version variables in CMake yet |
+| Branch names | The pattern in [Branches](#branches), checked by hand or by a host rule | manual |
+| Default branch, merge method, review flow | Host repository settings, review | manual; settings are not stored in the repository ([Repository setup](#repository-setup)) |
+| Tag and version format | `tool/cmake/Version.cmake` validates the stage tag and metadata; tag names by review | partly in place; Git tags manual |
 | Changelog entries | Review | manual |
 | Build presets and `build/<os>/<preset>/` | `CMakePresets.json` | in place |
-| Warnings-as-errors | `test` preset, Linux CI jobs | in place |
+| Warnings-as-errors | `beta` preset, Linux CI jobs | in place |
 | Compiler minimum versions | CMake configure warning | in place |
 | Formatting (`.editorconfig`) | Editors | in place; `clang-format` arrives in Milestone 4 |
 | Markdown style and link checks | Markdown linter, link checker | not configured yet (Milestone 9); manual |
@@ -42,22 +43,35 @@ Two long-lived branches exist:
 
 | Branch | Role |
 |--------|------|
-| `development` | The mainstream branch. All work integrates here. It SHOULD be the repository's default branch so pull requests target it. |
+| `development` | The mainstream branch. All work integrates here. It MUST be the repository's default branch, so pull requests target it. |
 | `release` | Released code only. Tags are created on it. |
 
 - Work happens on topic branches created from `development`.
-- A topic branch name MUST be `<type>/<short-description>`: lowercase, words separated by hyphens, `<type>` one of the commit types below. Example: `docs/add-changelog`.
+- A topic branch name MUST match this regular expression (POSIX extended, as used by `grep -E`):
+
+  ```text
+  ^(feat|fix|test|docs|build|ci|refactor|chore)/[a-z0-9]+(-[a-z0-9]+)*$
+  ```
+
+  That is `<type>/<description>`: `<type>` is one of the commit types below; `<description>` is lowercase words and digits separated by single hyphens, with no underscore, slash, dot or uppercase letter. The name SHOULD be 50 characters or fewer. Examples: `docs/add-changelog`, `fix/null-config-path`.
+- Because the pattern is fixed, branch names can be selected mechanically:
+
+  ```sh
+  git branch --list 'docs/*'                                   # all branches of one type
+  git branch --format='%(refname:short)' | grep -E '^(feat|fix)/'  # several types
+  git branch --format='%(refname:short)' | grep -vE '^(development|release|(feat|fix|test|docs|build|ci|refactor|chore)/[a-z0-9]+(-[a-z0-9]+)*)$'   # names that break the convention
+  ```
 - Topic branches MUST reach `development` through a pull request. CI MUST pass first. A failing check is fixed, not skipped or disabled.
 - `development` is merged into `release` only to make a release; the tag is then created on the resulting `release` commit.
 - `development` and `release` MUST NOT be force-pushed or have their history rewritten. Branch protection on the host SHOULD enforce this; it is a repository setting, not a file in the repository.
 - CI MUST run on pushes to `development` and `release` and on every pull request.
 - How a fix to an already released version is made is not defined yet.
 
-Recorded in [ADR 0005](../architecture/decisions/0005-branching-and-merge-strategy.md).
+Recorded in [ADR 0005](../architecture/decisions/0005-branching-and-merge-strategy.md) and [ADR 0007](../architecture/decisions/0007-default-branch-and-topic-branch-names.md).
 
 ### Merging
 
-- The merge method is a merge commit using Git's default strategy. That strategy is `ort`; `recursive` was the default before Git 2.34 and is now an alias for `ort`.
+- The merge method is a merge commit made with Git's current default strategy. A merge MUST NOT pass `-s` or `-X` to select another strategy, so the project follows whatever default the installed Git has. At Git 2.34 and later (the project requires 2.43) that default is `ort`; `recursive` was the default before and is now an alias for `ort`.
 - A local merge MUST use `git merge --no-ff <branch>`, so a merge commit is always created.
 - Squash merges and rebase merges MUST NOT be used to integrate pull requests. The host's repository settings SHOULD disable them.
 - An octopus merge (`git merge <branch1> <branch2> <branch3>`) MAY be used to integrate several branches at once. Git's octopus strategy refuses merges that need manual conflict resolution, so branches that conflict MUST be merged one at a time. Hosts' pull request buttons do not create octopus merges; it is done locally.
@@ -139,7 +153,7 @@ git diff --staged          # exactly what will be committed
 ```
 
 - The staged diff MUST be checked for secrets, machine-specific paths, anything from `build/` and generated files.
-- The tests the change touches MUST pass. For code changes, the `test` preset MUST pass: `cmake --preset test`, `cmake --build --preset test`, `ctest --preset test`.
+- The tests the change touches MUST pass. For code changes, the `beta` preset MUST pass: `cmake --preset beta`, `cmake --build --preset beta`, `ctest --preset beta`.
 
 ### What is never committed
 
@@ -149,38 +163,87 @@ a generated file MUST be edited, never the generated file.
 
 ### Versions
 
-Versions follow [Semantic Versioning 2.0.0](https://semver.org/). Every version MUST have a
-pre-release tag and build metadata, in the form:
+Versions follow [Semantic Versioning 2.0.0](https://semver.org/). Version tags and version metadata
+are information for people: they appear in documentation, the changelog and commit messages. No
+program logic depends on them. The build still makes them available (see
+[Reading the version](#reading-the-version)).
 
-```text
-X.Y.Z-TAG+METADATA
-```
+A version has three forms:
+
+| Form | Pattern | Use |
+|------|---------|-----|
+| Numeric | `X.Y.Z` | A final release. Also the numeric part of every other form. |
+| Tagged | `X.Y.Z-TAG` | A version in a stage before final release. Used for Git tags. |
+| Full | `X.Y.Z-TAG+METADATA`, or `X.Y.Z+METADATA` for a final release | Identifies one build. |
 
 - `X.Y.Z` follow Semantic Versioning: MAJOR for incompatible API changes, MINOR for backward-compatible functionality, PATCH for backward-compatible fixes.
-- `TAG` MUST be one of the values below. No other tag is accepted.
-- `METADATA` follows Semantic Versioning build metadata syntax: dot-separated identifiers of `0-9A-Za-z-`. Its content is not yet defined (open item). It does not affect version precedence.
-- A version without a tag or without metadata, such as `1.0.0`, MUST NOT be used.
+- A final release has no tag. A version with a tag is not a final release.
+- `TAG` MUST be one of the stage tags below. No other tag is accepted.
 
 | Tag | Meaning |
 |-----|---------|
-| `alpha` | Under heavy development |
-| `beta` | Under testing, bug fixing, coverage analysis and similar work |
+| `alpha` | Development |
+| `beta` | Testing and debugging |
 | `gamma` | Pre-release |
-| `delta` | Final release |
 
-The project's own order of stages is `alpha`, `beta`, `gamma`, `delta`. Moving to the next stage
-keeps `X.Y.Z` and changes the tag, unless the numbers also change.
+The configure presets use the same three names (`alpha`, `beta`, `gamma`; see [Build and run](build-and-run.md)), so the build-preset field of the metadata normally reads as a stage name. A preset does not select the stage tag; `-DPROJECT_VERSION_TAG` does.
 
-Known limitations, accepted by the repository owner ([ADR 0004](../architecture/decisions/0004-semver-versioning-with-greek-stage-tags.md)):
+The order of stages is `alpha`, `beta`, `gamma`, final release. This is also the order Semantic
+Versioning gives: identifiers made of letters compare as ASCII text, and a version with a tag has
+lower precedence than the same version without one. Moving to the next stage keeps `X.Y.Z` and
+changes the tag, unless the numbers also change.
 
-- Semantic Versioning orders pre-release identifiers by comparing them as ASCII text, so `delta` sorts before `gamma`. A tool that sorts by Semantic Versioning precedence ranks `X.Y.Z-gamma` above `X.Y.Z-delta`. Tooling MUST NOT use Semantic Versioning precedence to order stages; use the order in this section.
-- Under Semantic Versioning, `X.Y.Z-delta` has lower precedence than `X.Y.Z`. External tools therefore see every release, including `delta`, as a pre-release.
-- A tag has no counter, so each `X.Y.Z` has at most one version per stage. Another build in the same stage needs a new `X.Y.Z`.
-- CMake's `project(VERSION)` accepts numbers only, so the tag and metadata need separate variables. These are not implemented yet; the current `0.1.0` in `CMakeLists.txt` and in the application's output does not follow this format.
+#### Metadata
+
+`METADATA` is Semantic Versioning build metadata. It has exactly five dot-separated fields, in this
+order, and it does not affect version precedence:
+
+```text
+<timestamp>.<build-preset>.<os>.<architecture>.<toolchain>
+```
+
+| Field | Content | Source in CMake | Example |
+|-------|---------|-----------------|---------|
+| `timestamp` | UTC date of the CMake configure, `YYYYMMDD` (year, month, day) | `string(TIMESTAMP)`; honors `SOURCE_DATE_EPOCH` | `20261101` |
+| `build-preset` | Name of the configure preset; `none` when no preset was used | `PROJECT_BUILD_PRESET`, set by `CMakePresets.json` | `beta` |
+| `os` | Target operating system | `CMAKE_SYSTEM_NAME` | `Linux` |
+| `architecture` | Target processor | `CMAKE_SYSTEM_PROCESSOR` | `x86-64` |
+| `toolchain` | C++ compiler id and version | `CMAKE_CXX_COMPILER_ID`, `CMAKE_CXX_COMPILER_VERSION` | `GNU-13-3-0` |
+
+Characters outside `0-9A-Za-z-` in a field become `-`, because Semantic Versioning does not allow
+them (`x86_64` becomes `x86-64`, `13.3.0` becomes `13-3-0`).
+
+Example of a full version: `0.1.0-alpha+20261101.beta.Linux.x86-64.GNU-13-3-0`.
+
+#### Where versions MUST appear
+
+- **Changelog:** every release heading carries the full version (see [Changelog](#changelog)).
+- **Documentation:** a page that names a specific version of the project MUST write it in the form that identifies it: the tagged form for a stage, the full form when it refers to one build.
+- **Commit messages:** a commit that refers directly to a project version MUST write that version with its tag, and with its metadata when it refers to one build. A commit that does not refer to a version needs neither.
+- **Git tags:** the tagged form only (see [Tags](#tags)).
+
+#### Reading the version
+
+| Mechanism | Gives | Notes |
+|-----------|-------|-------|
+| CMake variables `PROJECT_VERSION`, `PROJECT_VERSION_TAG`, `PROJECT_VERSION_TAGGED`, `PROJECT_VERSION_METADATA`, `PROJECT_VERSION_FULL` | Each part and the combinations | Set by `tool/cmake/Version.cmake`; `PROJECT_VERSION_TAGGED` is `X.Y.Z-TAG` or `X.Y.Z` |
+| Configure flag `-DPROJECT_VERSION_TAG=<tag>` | Selects the stage; empty means final release | Default is `alpha`. An invalid tag stops the configure with an error. |
+| Compile definitions on the `app` target: `APP_VERSION`, `APP_VERSION_TAG`, `APP_VERSION_METADATA`, `APP_VERSION_FULL` | The same values as C++ string literals | Available to code that needs them; no code has to use them |
+| Execution flag `app --version` | The full version on standard output | Exit status 0 |
+| Run without arguments | `app X.Y.Z` (numeric only) | Unchanged |
+
+The default stage tag is set in `CMakeLists.txt`. Changing the stage is a one-line change there,
+or a `-DPROJECT_VERSION_TAG=` override for a single build; `X.Y.Z` is the `VERSION` in `project()`.
+
+Known limitations, accepted by the repository owner ([ADR 0006](../architecture/decisions/0006-versioning-without-final-release-tag.md)):
+
+- A tag has no counter, so each `X.Y.Z` has at most one version per stage. Another build in the same stage differs only in its metadata, or needs a new `X.Y.Z`.
+- The date is part of the binary's `--version` output, so builds of the same source made on different days differ unless `SOURCE_DATE_EPOCH` is set. A build that must be bit-for-bit reproducible MUST set it.
+- Metadata describes a build, but a release can be built many times on many platforms. The changelog records the metadata of one build; see [Changelog](#changelog).
 
 ### Tags
 
-- Each release MUST have a Git tag named `X.Y.Z-TAG`: the version and its tag, with no metadata and no other text (no `v` prefix).
+- Each release MUST have a Git tag named `X.Y.Z-TAG`, or `X.Y.Z` for a final release: the tagged form of the version, with no metadata and no other text (no `v` prefix).
 - Tags MUST be created on a commit of the `release` branch.
 - Tags SHOULD be annotated (`git tag -a`).
 - A tag that has been pushed MUST NOT be moved, deleted or reused.
@@ -193,9 +256,28 @@ The changelog is `CHANGELOG.md` in the repository root and follows
 - It is written by hand for people. It MUST NOT be generated from the commit log.
 - Every notable user-visible change MUST add an entry under `## [Unreleased]` in the same pull request.
 - Entries MUST be grouped under `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` or `Security`.
-- At release, `[Unreleased]` becomes `## [X.Y.Z-TAG] - YYYY-MM-DD` (the version without metadata, an ISO 8601 date) and a new empty `[Unreleased]` section is added above it.
+- At release, `[Unreleased]` becomes `## [X.Y.Z-TAG+METADATA] - YYYY-MM-DD` (the full version, or `X.Y.Z+METADATA` for a final release, and an ISO 8601 date) and a new empty `[Unreleased]` section is added above it.
+- The metadata in a heading MUST be copied from `app --version` of the build that the maintainer designates as the release build. It is not computed from the tag.
 - A release that is withdrawn MUST be marked `[YANKED]` and MUST NOT be deleted from the file.
-- Comparison links at the bottom of the file are added once the first tag exists.
+- Comparison links at the bottom of the file are added once the first tag exists. A link target is a Git tag, so it uses the tagged form without metadata.
+
+### Repository setup
+
+These settings live on the host, not in the repository, so a new repository made from this template
+MUST be configured by hand:
+
+- The default branch MUST be `development`.
+- Merge commits MUST be allowed; squash merges and rebase merges SHOULD be disabled.
+- `development` and `release` SHOULD be protected: no force push, no deletion, pull request and passing CI required.
+
+For GitHub, with the `gh` command line tool (**untested**; check the flags against `gh repo edit --help`):
+
+```sh
+git branch -m master development          # only if the local branch has another name
+git push -u origin development
+gh repo edit --default-branch development
+gh repo edit --enable-merge-commit --enable-squash-merge=false --enable-rebase-merge=false
+```
 
 ## Tools
 
@@ -216,7 +298,7 @@ The changelog is `CHANGELOG.md` in the repository root and follows
 
 ### Checks before a change is ready
 
-- A change MUST build without warnings under the `test` preset and its tests MUST pass.
+- A change MUST build without warnings under the `beta` preset and its tests MUST pass.
 - A warning flag MUST NOT be weakened, a test deleted or a failure marked as expected to make a check pass. The cause is fixed or the matter is discussed in the pull request.
 - The report of a change MUST state what was actually run and its result. A check that was not run MUST be reported as not run.
 

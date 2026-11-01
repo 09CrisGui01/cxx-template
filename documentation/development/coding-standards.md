@@ -13,7 +13,7 @@ are in that page, not here.
 - Code MUST be C++23: `CXX_STANDARD 23`, required, compiler extensions off.
 - Code MUST compile with GCC, Clang and MSVC. It MUST NOT assume every C++23 library feature exists on every toolchain; `std::expected` is the known example ([ADR 0001](../architecture/decisions/0001-result-type-instead-of-std-expected.md)).
 - C++23 features SHOULD NOT be used where a simpler construct works.
-- Code MUST build without warnings under the `test` preset (`PROJECT_WARNINGS_AS_ERRORS=ON`). A warning MUST NOT be silenced to get a build through; the cause is fixed or the matter is discussed in review.
+- Code MUST build without warnings under the `beta` preset (`PROJECT_WARNINGS_AS_ERRORS=ON`). A warning MUST NOT be silenced to get a build through; the cause is fixed or the matter is discussed in review.
 
 ## Layout and naming
 

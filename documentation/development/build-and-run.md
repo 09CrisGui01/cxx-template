@@ -8,15 +8,21 @@
 
 Defined in `CMakePresets.json`. Binary directory is `build/<os>/<preset>`; `build/` is not tracked. See [Build directories](#build-directories).
 
-| Configure preset | Generator | Build type | Notes |
-|------------------|-----------|------------|-------|
-| `debug` | Ninja | Debug | |
-| `release` | Ninja | Release | |
-| `test` | Ninja | Debug | `PROJECT_WARNINGS_AS_ERRORS=ON` |
-| `msvc` | Ninja Multi-Config | per build preset | Windows hosts only; compiler `cl` |
+| Configure preset | Stage | Generator | Build type | Notes |
+|------------------|-------|-----------|------------|-------|
+| `alpha` | development | Ninja | Debug | |
+| `beta` | testing and debugging | Ninja | Debug | `PROJECT_WARNINGS_AS_ERRORS=ON` |
+| `gamma` | pre-release | Ninja | Release | |
+| `msvc` | none | Ninja Multi-Config | per build preset | Windows hosts only; compiler `cl` |
+
+The preset names follow the stage tags `alpha`, `beta` and `gamma` (see
+[Conventions](conventions.md#versions)). The name of a preset does not set `PROJECT_VERSION_TAG`:
+the stage tag and the preset are chosen separately, and the preset name is only recorded in the
+version metadata.
 
 Build and test presets have the same names as the configure presets, plus `msvc-debug` and
-`msvc-release` for the multi-config `msvc` preset.
+`msvc-release` for the multi-config `msvc` preset, which keep their names because the `msvc`
+preset is not a stage.
 
 ```sh
 cmake --preset <name>
@@ -34,7 +40,7 @@ operating systems without the build directories colliding. `<os>` is the CMake h
 
 | Host | `<os>` | Status |
 |------|--------|--------|
-| Linux | `Linux` | verified (`build/Linux/test`, `build/Linux/debug`) |
+| Linux | `Linux` | verified (`build/Linux/beta`, `build/Linux/alpha`) |
 | macOS | `Darwin` | from CMake's definition; not observed by the author |
 | Windows | `Windows` | from CMake's definition; not observed by the author |
 | FreeBSD | `FreeBSD` | from CMake's definition; not observed by the author |
@@ -45,11 +51,17 @@ operating systems without the build directories colliding. `<os>` is the CMake h
 |--------|---------|--------|
 | `PROJECT_WARNINGS_AS_ERRORS` | `OFF` | Adds `-Werror` (GCC, Clang) or `/WX` (MSVC) |
 | `BUILD_TESTING` | `ON` | Builds `app_tests` and registers CTest tests |
+| `PROJECT_VERSION_TAG` | `alpha` | Stage tag: `alpha`, `beta`, `gamma`, or empty for a final release. Any other value stops the configure. |
+| `PROJECT_BUILD_PRESET` | set by each preset; `none` without one | Preset name recorded in the version metadata. Not meant to be set by hand. |
 | `CMAKE_BUILD_TYPE` | `Release` if unset (single-config generators only) | Standard CMake variable |
 
 Compiler minimum versions are soft limits set in `tool/cmake/ToolchainRequirements.cmake`; a compiler
 below its minimum triggers a configure warning, not an error. Override with
 `-DPROJECT_MIN_GNU_VERSION=<version>` (also `_CLANG_`, `_APPLECLANG_`, `_MSVC_`).
+
+Version tag and metadata are documented in [Conventions](conventions.md#versions). Set
+`SOURCE_DATE_EPOCH` in the environment before configuring to make the timestamp in the metadata
+reproducible. The configure step prints the full version (`-- Version: ...`).
 
 Without presets:
 
@@ -62,8 +74,12 @@ ctest --test-dir build/Linux/manual
 ## Run the application
 
 ```sh
-./build/<os>/<preset>/app [config-file]
+./build/<os>/<preset>/app [--version | config-file]
 ```
+
+`--version` prints the full version, `X.Y.Z-TAG+METADATA` (for example
+`0.1.0-alpha+20261101.beta.Linux.x86-64.GNU-13-3-0`), and exits with status 0. With no
+argument the application prints `app X.Y.Z`.
 
 | Exit status | Meaning |
 |-------------|---------|
@@ -78,9 +94,9 @@ is not verified.
 ## Select tests
 
 ```sh
-ctest --preset test -N                    # list tests without running
-ctest --preset test -R "byte order"       # run tests whose name matches a regex
-./build/Linux/test/test/app_tests "[portability]"   # run Catch2 tests by tag
+ctest --preset beta -N                    # list tests without running
+ctest --preset beta -R "byte order"       # run tests whose name matches a regex
+./build/Linux/beta/test/app_tests "[portability]"   # run Catch2 tests by tag
 ```
 
 Catch2 tags in use: `[config]`, `[file]`, `[limits]`, `[portability]`. CTest does not receive the
@@ -90,7 +106,7 @@ tags as labels, so `ctest -L` does not select by tag.
 
 | Symptom | Fix |
 |---------|-----|
-| Build error mentioning warnings only with the `test` preset | That preset enables warnings-as-errors. Fix the warning; do not disable the flag. |
+| Build error mentioning warnings only with the `beta` preset | That preset enables warnings-as-errors. Fix the warning; do not disable the flag. |
 | `ctest` reports "No tests were found" | Configure was run with `BUILD_TESTING=OFF`, or you are in the wrong build directory. |
 
 ## Related

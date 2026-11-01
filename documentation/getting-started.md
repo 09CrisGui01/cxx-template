@@ -13,10 +13,10 @@ the first configure to fetch Catch2.
 From the repository root:
 
 ```sh
-cmake --preset test
-cmake --build --preset test
-ctest --preset test
-./build/Linux/test/app configuration/default.conf
+cmake --preset beta
+cmake --build --preset beta
+ctest --preset beta
+./build/Linux/beta/app configuration/default.conf
 ```
 
 The path is for Linux; on other systems replace `Linux` with your host system name (see [Build and run](development/build-and-run.md#build-directories)).
@@ -31,8 +31,8 @@ ctest --preset msvc-debug
 
 ## Expected results
 
-- Configure ends with `Build files have been written to: .../build/Linux/test`.
-- Build finishes with no warnings (the `test` preset treats warnings as errors).
+- Configure ends with `Build files have been written to: .../build/Linux/beta`.
+- Build finishes with no warnings (the `beta` preset treats warnings as errors).
 - `ctest` ends with `100% tests passed, 0 tests failed out of 17` (the count grows as tests are added).
 - The application prints:
 
@@ -43,7 +43,7 @@ log.level=info
 name=cpp23-template
 ```
 
-Running `./build/Linux/test/app` with no argument prints only `app 0.1.0`. A missing file prints
+Running `./build/Linux/beta/app` with no argument prints only `app 0.1.0`. `./build/Linux/beta/app --version` prints the full version, such as `0.1.0-alpha+20261101.beta.Linux.x86-64.GNU-13-3-0`. A missing file prints
 `error: file not found` and exits with status 1.
 
 ## Troubleshooting

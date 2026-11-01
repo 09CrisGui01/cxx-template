@@ -20,7 +20,7 @@ succeed in a new directory.
 
 ## Verification
 
-- Fresh `git clone` into a new directory, then `cmake --preset test`, `cmake --build --preset test`, `ctest --preset test`: run on Linux with GCC 13.3 and Clang 18.1 after each change; passed.
+- Fresh `git clone` into a new directory, then `cmake --preset beta`, `cmake --build --preset beta`, `ctest --preset beta`: run on Linux with GCC 13.3 and Clang 18.1 after each change; passed.
 - The CI workflow checks out the repository fresh for every job; the repository owner reported all jobs passed.
 - Not verified: a build on a machine without network access to github.com (the first configure fetches Catch2); a machine with no prior Catch2 and a different CMake version than 3.28.3.
 
