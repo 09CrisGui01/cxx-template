@@ -21,7 +21,8 @@ nonzero.
 - Tests that need files create them in a uniquely named temporary directory (`TempDir` in `test/config_test.cpp`) and remove it afterwards.
 - Integration tests that must fail use CTest's `WILL_FAIL` property, so the suite checks that the application exits nonzero.
 - The suite was run many times locally across GCC and Clang, Debug and Release, with no intermittent failure observed. That is evidence, not proof, of determinism.
-- Not verified: Catch2's own failure exit status was not tested by deliberately failing a case. Running with the network disabled was not tested; the first configure needs network access (see [ASR 0001](0001-clean-checkout-reproducibility.md)), but running tests does not.
+- A deliberately failing Catch2 case made `app_tests` exit with status 42 and `ctest` with status 8 (Linux, GCC 13.3, 2026-11-01); the case was removed afterwards.
+- Not verified: other platforms for that check. Running with the network disabled was not tested; the first configure needs network access (see [ASR 0001](0001-clean-checkout-reproducibility.md)), but running tests does not.
 
 ## Alternatives considered
 

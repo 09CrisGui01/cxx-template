@@ -29,7 +29,7 @@ FreeBSD with its base Clang. Acceptance: the corresponding CI job passes for Deb
 
 ## Consequences and trade-offs
 
-- Code must avoid library behavior that differs between libstdc++, libc++ and the MSVC STL. Past failures: `std::expected` missing on Clang 18 with libstdc++ ([ADR 0001](../decisions/0001-result-type-instead-of-std-expected.md)); `std::to_string` ambiguity on libc++ in a test helper.
+- Code MUST avoid library behavior that differs between libstdc++, libc++ and the MSVC STL. Past failures: `std::expected` missing on Clang 18 with libstdc++ ([ADR 0001](../decisions/0001-result-type-instead-of-std-expected.md)); `std::to_string` ambiguity on libc++ in a test helper.
 - Platform-specific build settings are isolated in `tool/cmake/Portability.cmake` and the `msvc` preset ([ADR 0003](../decisions/0003-msvc-with-ninja-multi-config.md)).
 - Build directories are separated per host OS (`build/<os>/<preset>/`) so one source tree can be built on several systems.
 - The CI matrix covers Debug only; extending it to Release raises CI time.

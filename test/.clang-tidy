@@ -1,0 +1,12 @@
+# Test code: inherits the project configuration, except two checks.
+# - readability-function-cognitive-complexity: Catch2 assertion macros (CHECK,
+#   REQUIRE) expand to branches, so the complexity of a test case is inflated by
+#   the framework, not by the test.
+# - clang-analyzer-optin.core.EnumCastOutOfRange: reported inside Catch2's own
+#   header (catch_result_type.hpp, a bit-flag enum cast) when a test is
+#   compiled. It is in third-party code that the header filter cannot hide from
+#   the analyzer.
+InheritParentConfig: true
+Checks: >
+  -readability-function-cognitive-complexity,
+  -clang-analyzer-optin.core.EnumCastOutOfRange

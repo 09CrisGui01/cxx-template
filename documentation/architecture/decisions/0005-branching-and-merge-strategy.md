@@ -1,6 +1,6 @@
 # ADR 0005: Branching and merge strategy
 
-- **Status:** Accepted
+- **Status:** Accepted; amended by [ADR 0007](0007-default-branch-and-topic-branch-names.md)
 - **Date:** 2026-10-31
 
 ## Context

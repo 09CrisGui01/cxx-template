@@ -13,6 +13,12 @@ canonical dependency table and platform support table; other pages link to it in
 | [Getting started](getting-started.md) | Clone, configure, build, test and run for the first time |
 | [Environment setup](development/environment-setup.md) | Installing the required tools |
 | [Build and run](development/build-and-run.md) | Presets, CMake options, running the app, selecting tests |
+| [Testing strategy](testing/strategy.md) | Test levels, rules and commands |
+| [Unit and integration tests](testing/unit-and-integration-tests.md) | Running, adding and diagnosing tests |
+| [Coverage](testing/coverage.md) | Optional coverage reports with GCC and Clang |
+| [Sanitizers](testing/sanitizers.md) | AddressSanitizer, UndefinedBehaviorSanitizer, ThreadSanitizer |
+| [GitHub Actions](ci-cd/github-actions.md) | CI workflow: triggers, jobs, local reproduction, troubleshooting |
+| [Formatting, static analysis and warnings](tooling/static-analysis.md) | Compiler warnings, clang-format, clang-tidy |
 | [Coding standards](development/coding-standards.md) | C++23 rules, naming, error handling, testing expectations |
 | [Conventions](development/conventions.md) | Git commits and branches, tool usage, documentation writing (no code rules) |
 | [Architecture overview](architecture/overview.md) | Components, CMake targets, data flow, test architecture |
@@ -24,14 +30,18 @@ canonical dependency table and platform support table; other pages link to it in
 | [ADR 0002](architecture/decisions/0002-catch2-test-framework.md) | Catch2 as the test framework |
 | [ADR 0003](architecture/decisions/0003-msvc-with-ninja-multi-config.md) | MSVC built with Ninja Multi-Config and `cl` |
 | [ADR 0004](architecture/decisions/0004-semver-versioning-with-greek-stage-tags.md) | Semantic Versioning with Greek stage tags (superseded by ADR 0006) |
-| [ADR 0005](architecture/decisions/0005-branching-and-merge-strategy.md) | Branching and merge strategy |
+| [ADR 0005](architecture/decisions/0005-branching-and-merge-strategy.md) | Branching and merge strategy (amended by ADR 0007) |
 | [ADR 0006](architecture/decisions/0006-versioning-without-final-release-tag.md) | Versioning without a final release tag |
 | [ADR 0007](architecture/decisions/0007-default-branch-and-topic-branch-names.md) | Default branch and topic branch names |
+| [ADR 0008](architecture/decisions/0008-coverage-with-gcovr-and-llvm-cov.md) | Coverage with gcovr for GCC and llvm-cov for Clang |
+| [ADR 0009](architecture/decisions/0009-optional-quality-tools-as-cmake-modules.md) | Optional quality tools as per-target CMake modules |
 | [ASR 0001](architecture/requirements/0001-clean-checkout-reproducibility.md) | Clean-checkout reproducibility |
 | [ASR 0002](architecture/requirements/0002-minimal-core-toolchain.md) | Minimal core toolchain |
 | [ASR 0003](architecture/requirements/0003-bounded-untrusted-input.md) | Bounded untrusted input |
 | [ASR 0004](architecture/requirements/0004-multi-platform-portability.md) | Multi-platform portability |
 | [ASR 0005](architecture/requirements/0005-deterministic-self-contained-tests.md) | Deterministic, self-contained tests |
+| [ASR 0006](architecture/requirements/0006-optional-coverage-measurement.md) | Optional coverage measurement |
+| [ASR 0007](architecture/requirements/0007-findings-fail-the-run.md) | Tool findings fail the run |
 
 ## Not yet written
 
@@ -40,8 +50,6 @@ its milestone and is added to the table above at that time.
 
 | Topic | Milestone |
 |-------|-----------|
-| Coverage, sanitizers, testing strategy | 3, 4 |
-| Formatting and static analysis | 4 |
 | Git hooks, Commitlint setup, release workflow | 5 |
 | Containers (development, testing, runtime) | 6 |
 | AI-assisted development (`AGENTS.md`) | 7 |

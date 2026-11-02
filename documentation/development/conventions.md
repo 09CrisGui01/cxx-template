@@ -32,7 +32,8 @@ A convention marked "manual" is checked by reviewers until the tool that enforce
 | Build presets and `build/<os>/<preset>/` | `CMakePresets.json` | in place |
 | Warnings-as-errors | `beta` preset, Linux CI jobs | in place |
 | Compiler minimum versions | CMake configure warning | in place |
-| Formatting (`.editorconfig`) | Editors | in place; `clang-format` arrives in Milestone 4 |
+| Formatting (`.editorconfig`, `.clang-format`) | Editors; `format-check` target | in place; the `format-check` target is optional locally and runs in the CI `quality` job (not yet run on GitHub) |
+| Static analysis and sanitizers | `tidy`, `sanitize`, `tsan` presets | in place; optional; findings fail the run |
 | Markdown style and link checks | Markdown linter, link checker | not configured yet (Milestone 9); manual |
 
 ## Git
@@ -153,6 +154,7 @@ git diff --staged          # exactly what will be committed
 ```
 
 - The staged diff MUST be checked for secrets, machine-specific paths, anything from `build/` and generated files.
+- Formatting SHOULD be checked with `cmake --build --preset alpha --target format-check` when clang-format is installed.
 - The tests the change touches MUST pass. For code changes, the `beta` preset MUST pass: `cmake --preset beta`, `cmake --build --preset beta`, `ctest --preset beta`.
 
 ### What is never committed
@@ -299,13 +301,14 @@ gh repo edit --enable-merge-commit --enable-squash-merge=false --enable-rebase-m
 ### Checks before a change is ready
 
 - A change MUST build without warnings under the `beta` preset and its tests MUST pass.
+- A change SHOULD pass `format-check`, the `tidy` build and the `sanitize` tests when those tools are installed ([Formatting, static analysis and warnings](../tooling/static-analysis.md)).
 - A warning flag MUST NOT be weakened, a test deleted or a failure marked as expected to make a check pass. The cause is fixed or the matter is discussed in the pull request.
 - The report of a change MUST state what was actually run and its result. A check that was not run MUST be reported as not run.
 
 ### Continuous integration
 
 - CI MUST run the same presets and commands the documentation shows. Build logic MUST NOT exist only in the workflow file.
-- Third-party actions are pinned by tag at present. Changing a pin is a `ci` change and MUST be reviewed.
+- Third-party actions are referenced by a floating major tag (for example `actions/checkout@v4`), not by commit hash. Changing a reference is a `ci` change and MUST be reviewed. The jobs and settings are described in [GitHub Actions](../ci-cd/github-actions.md).
 - Secrets MUST NOT be printed in logs. Workflow permissions MUST stay at the minimum the job needs (currently `contents: read`).
 - Results observed by someone other than the author MUST be labelled as reported.
 
@@ -325,7 +328,7 @@ Editors MUST honor `.editorconfig` (UTF-8, LF line endings, 2-space indent, fina
 
 - Documentation lives in `documentation/`. The top-level `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md` and `AGENTS.md` stay in the repository root.
 - File and directory names MUST be lowercase, with words separated by hyphens, and end in `.md`. ADRs and ASRs are `NNNN-short-title.md` with a four-digit number, using the next unused number.
-- Every page MUST have one H1 title and MUST NOT skip heading levels. Headings use sentence case.
+- Every page MUST have one H1 title and MUST NOT skip heading levels. Headings use sentence case. The ADR and ASR templates are the exception: they contain a second H1 (`# ADR NNNN: Title`) that belongs to the record being written.
 - A substantive page SHOULD open with a **Purpose** line and, as they apply, cover prerequisites, procedure, commands, expected results, troubleshooting and related pages. Short reference pages MAY omit sections that do not apply.
 - A new page MUST be added to the [documentation index](../index.md) in the same change. A page for a feature that does not exist yet MUST NOT be written; the index lists it under "Not yet written".
 
@@ -334,7 +337,7 @@ Editors MUST honor `.editorconfig` (UTF-8, LF line endings, 2-space indent, fina
 - Documentation is written in English, with American spelling, present tense and active voice, in short sentences. It says what a thing does, not that it is "simple" or "easy".
 - One term MUST be used for one thing, spelled as the repository spells it: `documentation/` (not `docs/`), `midput`, `build/<os>/<preset>/`.
 - Dates MUST be ISO 8601 (`2026-10-31`). Versions MUST be written exactly.
-- Prose SHOULD be wrapped at about 100 columns. Tables MUST NOT be wrapped.
+- Paragraphs SHOULD be wrapped at about 100 columns. A list item MAY be a single long line. Tables MUST NOT be wrapped.
 
 ### Formatting
 
@@ -357,7 +360,7 @@ Editors MUST honor `.editorconfig` (UTF-8, LF line endings, 2-space indent, fina
 
 - An [ADR](../adr-template.md) SHOULD be written for a significant architectural decision and an [ASR](../asr-template.md) for an architecturally significant requirement. They MUST NOT be used for routine details.
 - An ASR states what MUST hold and how it is verified; an ADR states the design choice that satisfies it. They SHOULD link to each other.
-- The decision in an accepted record MUST NOT be rewritten. A new record supersedes it, and the old status becomes "Superseded by ...". The verification status of an ASR is updated as evidence arrives.
+- The decision in an accepted record MUST NOT be rewritten. A new record supersedes or amends it. The old status then becomes "Superseded by ...", or an "Amends" line on the new record plus a pointer in the old status ("Accepted; amended by ..."). The verification status of an ASR is updated as evidence arrives.
 
 ### Checking documentation
 

@@ -1,11 +1,11 @@
-#include <catch2/catch_test_macros.hpp>
+#include "config.hpp"
 
+#include <array>
+#include <catch2/catch_test_macros.hpp>
 #include <filesystem>
 #include <fstream>
 #include <random>
 #include <string>
-
-#include "config.hpp"
 
 using app::ErrorCode;
 
@@ -63,12 +63,12 @@ TEST_CASE("parse_config rejects malformed lines with line numbers", "[config]") 
     ErrorCode code;
     std::size_t line;
   };
-  const Case cases[] = {
+  const std::array<Case, 4> cases{{
       {"novalue", ErrorCode::missing_separator, 1},
       {"ok=1\n=value", ErrorCode::empty_key, 2},
       {"bad key=1", ErrorCode::invalid_key, 1},
       {"a=1\nb=2\na=3", ErrorCode::duplicate_key, 3},
-  };
+  }};
   for (const auto& c : cases) {
     CAPTURE(c.text);
     const auto result = app::parse_config(c.text);
@@ -153,13 +153,18 @@ TEST_CASE("to_string covers every error code", "[config]") {
 }
 
 TEST_CASE("parse_config skips a leading UTF-8 byte order mark", "[config][portability]") {
-  const auto result = app::parse_config("\xEF\xBB\xBF" "k=v\n");
+  const auto result = app::parse_config(
+      "\xEF\xBB\xBF"
+      "k=v\n");
   REQUIRE(result.has_value());
   CHECK(result->get("k") == "v");
 }
 
-TEST_CASE("parse_config rejects a byte order mark that is not at the start", "[config][portability]") {
-  const auto result = app::parse_config("a=1\n\xEF\xBB\xBF" "b=2\n");
+TEST_CASE("parse_config rejects a byte order mark that is not at the start",
+          "[config][portability]") {
+  const auto result = app::parse_config(
+      "a=1\n\xEF\xBB\xBF"
+      "b=2\n");
   REQUIRE_FALSE(result.has_value());
   CHECK(result.error().code == ErrorCode::invalid_key);
   CHECK(result.error().line == 2);
@@ -187,7 +192,8 @@ TEST_CASE("load_config_file handles spaces and non-ASCII in paths", "[config][fi
   CHECK(result->get("x") == "1");
 }
 
-TEST_CASE("load_config_file follows symlinks, reports dangling ones", "[config][file][portability]") {
+TEST_CASE("load_config_file follows symlinks, reports dangling ones",
+          "[config][file][portability]") {
   const TempDir dir;
   const auto target = dir.path() / "target.conf";
   std::ofstream{target} << "x=1\n";

@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <exception>
 #include <iostream>
 #include <string_view>
 
@@ -17,9 +18,9 @@ namespace {
 constexpr int exit_ok = EXIT_SUCCESS;
 constexpr int exit_failure = EXIT_FAILURE;
 constexpr int exit_usage = 2;
-}  // namespace
 
-int main(int argc, char* argv[]) {
+// Does the work. Expected failures are returned as exit codes, never thrown.
+int run(int argc, char** argv) {
   if (argc > 2) {
     std::cerr << "usage: app [--version | config-file]\n";
     return exit_usage;
@@ -50,4 +51,19 @@ int main(int argc, char* argv[]) {
     std::cout << key << '=' << value << '\n';
   }
   return exit_ok;
+}
+
+}  // namespace
+
+// Last resort: an unexpected exception (for example std::bad_alloc) becomes an
+// error message and a failure exit code instead of std::terminate.
+int main(int argc, char* argv[]) {
+  try {
+    return run(argc, argv);
+  } catch (const std::exception& error) {
+    std::cerr << "error: unexpected exception: " << error.what() << '\n';
+  } catch (...) {
+    std::cerr << "error: unexpected unknown exception\n";
+  }
+  return exit_failure;
 }

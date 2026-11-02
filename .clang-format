@@ -1,0 +1,7 @@
+BasedOnStyle: Google
+Language: Cpp
+Standard: Latest
+ColumnLimit: 100
+IndentWidth: 2
+AllowShortCaseLabelsOnASingleLine: true
+IncludeBlocks: Regroup

@@ -42,6 +42,46 @@
       }
     },
     {
+      "name": "coverage",
+      "inherits": "base",
+      "displayName": "Debug with coverage instrumentation (GCC or Clang)",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": "ON",
+        "PROJECT_ENABLE_COVERAGE": "ON"
+      }
+    },
+    {
+      "name": "tidy",
+      "inherits": "base",
+      "displayName": "Debug with clang-tidy",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": "ON",
+        "PROJECT_ENABLE_CLANG_TIDY": "ON"
+      }
+    },
+    {
+      "name": "sanitize",
+      "inherits": "base",
+      "displayName": "Debug with AddressSanitizer and UndefinedBehaviorSanitizer",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": "ON",
+        "PROJECT_SANITIZERS": "address;undefined"
+      }
+    },
+    {
+      "name": "tsan",
+      "inherits": "base",
+      "displayName": "Debug with ThreadSanitizer",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "BUILD_TESTING": "ON",
+        "PROJECT_SANITIZERS": "thread"
+      }
+    },
+    {
       "name": "msvc",
       "displayName": "Windows, MSVC cl (run from a Developer Command Prompt)",
       "generator": "Ninja Multi-Config",
@@ -69,6 +109,29 @@
     {
       "name": "beta",
       "configurePreset": "beta"
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage"
+    },
+    {
+      "name": "coverage-report",
+      "configurePreset": "coverage",
+      "targets": [
+        "coverage"
+      ]
+    },
+    {
+      "name": "tidy",
+      "configurePreset": "tidy"
+    },
+    {
+      "name": "sanitize",
+      "configurePreset": "sanitize"
+    },
+    {
+      "name": "tsan",
+      "configurePreset": "tsan"
     },
     {
       "name": "msvc-debug",
@@ -99,6 +162,38 @@
     {
       "name": "beta",
       "configurePreset": "beta",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "coverage",
+      "configurePreset": "coverage",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "tidy",
+      "configurePreset": "tidy",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "sanitize",
+      "configurePreset": "sanitize",
+      "output": {
+        "outputOnFailure": true
+      },
+      "environment": {
+        "ASAN_OPTIONS": "detect_stack_use_after_return=1:strict_string_checks=1",
+        "UBSAN_OPTIONS": "print_stacktrace=1"
+      }
+    },
+    {
+      "name": "tsan",
+      "configurePreset": "tsan",
       "output": {
         "outputOnFailure": true
       }

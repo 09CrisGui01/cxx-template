@@ -8,7 +8,11 @@ CMake, Ninja, Git and a C++23 compiler. Minimum (soft) and verified versions are
 [dependency table](../../README.md#dependencies); that table is the single source of truth. A
 compiler below its minimum produces a CMake warning at configure time and the build continues.
 
-Not required: Docker, Podman, Node.js, Python, Jenkins.
+Optional, for coverage reports only: gcovr (needs Python) for GCC, or `llvm-cov`, `llvm-profdata` and the Clang profile runtime for Clang. See [Coverage](../testing/coverage.md#prerequisites).
+
+Optional, for quality checks: clang-format and clang-tidy (see [Static analysis](../tooling/static-analysis.md)), and the compiler's sanitizer runtimes (see [Sanitizers](../testing/sanitizers.md)).
+
+Not required for the default build: Docker, Podman, Node.js, Python, Jenkins.
 
 ## Install commands
 
@@ -33,7 +37,7 @@ c++ --version
 
 On Windows: `cl` (prints the MSVC version to stderr).
 
-Each command should print a version. Compare against the README dependency table.
+Each command prints a version. Compare against the README dependency table.
 
 ## Choosing a compiler
 

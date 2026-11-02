@@ -1,0 +1,28 @@
+# Checks chosen for correctness and safety first, then modern C++ and
+# readability. Each disabled check has a reason.
+Checks: >
+  -*,
+  bugprone-*,
+  clang-analyzer-*,
+  cppcoreguidelines-init-variables,
+  cppcoreguidelines-pro-type-member-init,
+  cppcoreguidelines-slicing,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -readability-magic-numbers,
+  -misc-non-private-member-variables-in-classes,
+  -misc-include-cleaner,
+  -readability-identifier-length
+# Disabled: trailing return types are a style the project does not use;
+# magic-numbers flags test data and constants that are already named;
+# misc-include-cleaner depends on include paths that differ between compilers;
+# identifier-length rejects conventional short names in small scopes (`it`,
+# `ec`, `c`) and would force noisier code.
+WarningsAsErrors: '*'
+# The header filter is passed by tool/cmake/StaticAnalysis.cmake, because a
+# regular expression here would also match third-party `internal/` directories.
+FormatStyle: file

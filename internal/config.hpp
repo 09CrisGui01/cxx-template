@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <filesystem>
 #include <map>
 #include <optional>
@@ -12,11 +13,11 @@
 namespace app {
 
 // Hard limits applied to untrusted configuration input.
-inline constexpr std::size_t max_config_bytes = 1024 * 1024;
+inline constexpr std::size_t max_config_bytes = std::size_t{1024} * 1024;
 inline constexpr std::size_t max_line_bytes = 4096;
 inline constexpr std::size_t max_entries = 1024;
 
-enum class ErrorCode {
+enum class ErrorCode : std::uint8_t {
   file_not_found,
   not_a_regular_file,
   read_failed,

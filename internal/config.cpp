@@ -21,8 +21,8 @@ std::string_view trim(std::string_view s) noexcept {
 
 bool is_valid_key(std::string_view key) noexcept {
   return std::ranges::all_of(key, [](char c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
-           c == '_' || c == '.' || c == '-';
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' ||
+           c == '.' || c == '-';
   });
 }
 

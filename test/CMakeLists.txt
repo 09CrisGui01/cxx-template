@@ -18,6 +18,9 @@ add_executable(app_tests config_test.cpp)
 target_link_libraries(app_tests PRIVATE app_core Catch2::Catch2WithMain)
 project_set_warnings(app_tests)
 project_set_portability(app_tests)
+project_set_coverage(app_tests)
+project_set_static_analysis(app_tests)
+project_set_sanitizers(app_tests)
 
 # Each Catch2 test case becomes its own CTest test.
 catch_discover_tests(app_tests)
@@ -44,6 +47,15 @@ set_tests_properties(app.prints_full_version PROPERTIES PASS_REGULAR_EXPRESSION
 
 add_test(NAME app.rejects_missing_file COMMAND app "${CMAKE_CURRENT_BINARY_DIR}/does-not-exist.conf")
 set_tests_properties(app.rejects_missing_file PROPERTIES WILL_FAIL TRUE)
+
+# A parse error must name its line. The file is written at configure time into
+# the build tree, so no tracked fixture is needed. CTest ignores the exit status
+# when a pass regular expression is set; the failure exit status is covered by
+# app.rejects_missing_file.
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/invalid.conf" "name=value\nthis line has no separator\n")
+add_test(NAME app.reports_line_of_parse_error COMMAND app "${CMAKE_CURRENT_BINARY_DIR}/invalid.conf")
+set_tests_properties(app.reports_line_of_parse_error PROPERTIES PASS_REGULAR_EXPRESSION
+  "error: missing '=' separator \\(line 2\\)")
 
 add_test(NAME app.rejects_extra_arguments COMMAND app one two)
 set_tests_properties(app.rejects_extra_arguments PROPERTIES WILL_FAIL TRUE)

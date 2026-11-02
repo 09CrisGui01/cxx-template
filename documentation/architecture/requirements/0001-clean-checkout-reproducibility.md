@@ -31,7 +31,7 @@ succeed in a new directory.
 
 ## Consequences and trade-offs
 
-- All build inputs must be tracked or fetched by the build itself.
+- All build inputs MUST be tracked or fetched by the build itself.
 - The Catch2 fetch pins a tag, not a commit hash, so a moved tag would change a "reproducible" build. Pinning a hash is an open improvement.
 - Build directories live under `build/`, which is ignored, so stale local state cannot be committed.
 

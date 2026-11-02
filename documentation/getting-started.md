@@ -33,7 +33,7 @@ ctest --preset msvc-debug
 
 - Configure ends with `Build files have been written to: .../build/Linux/beta`.
 - Build finishes with no warnings (the `beta` preset treats warnings as errors).
-- `ctest` ends with `100% tests passed, 0 tests failed out of 17` (the count grows as tests are added).
+- `ctest` ends with `100% tests passed, 0 tests failed out of 19` (the count grows as tests are added).
 - The application prints:
 
 ```text
@@ -43,8 +43,9 @@ log.level=info
 name=cpp23-template
 ```
 
-Running `./build/Linux/beta/app` with no argument prints only `app 0.1.0`. `./build/Linux/beta/app --version` prints the full version, such as `0.1.0-alpha+20261101.beta.Linux.x86-64.GNU-13-3-0`. A missing file prints
-`error: file not found` and exits with status 1.
+Running `./build/Linux/beta/app` with no argument prints only `app 0.1.0`. `./build/Linux/beta/app --version`
+prints the full version, such as `0.1.0-alpha+20261101.beta.Linux.x86-64.GNU-13-3-0`. A missing file
+prints `error: file not found` and exits with status 1.
 
 ## Troubleshooting
 
@@ -60,6 +61,7 @@ Running `./build/Linux/beta/app` with no argument prints only `app 0.1.0`. `./bu
 1. Read the [architecture overview](architecture/overview.md) and [repository structure](architecture/repository-structure.md).
 2. Replace the example: see [Replacing the example application](architecture/overview.md#replacing-the-example-application).
 3. Follow the [coding standards](development/coding-standards.md).
+4. Optional checks: [coverage](testing/coverage.md), [sanitizers](testing/sanitizers.md) and [formatting and static analysis](tooling/static-analysis.md).
 
 ## Related
 

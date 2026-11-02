@@ -10,8 +10,9 @@ unused number, fill it in, and add the record to the [documentation index](index
 
 # ADR NNNN: Title
 
-- **Status:** Proposed | Accepted | Superseded by ADR NNNN | Deprecated
+- **Status:** Proposed | Accepted | Accepted; amended by ADR NNNN | Superseded by ADR NNNN | Deprecated
 - **Date:** YYYY-MM-DD
+- **Supersedes** or **Amends:** ADR NNNN (optional line; omit when the record stands alone)
 
 ## Context
 

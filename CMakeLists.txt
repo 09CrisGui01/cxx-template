@@ -21,6 +21,10 @@ option(PROJECT_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 
 include(CompilerWarnings)
 include(Portability)
+include(Coverage)
+include(Format)
+include(StaticAnalysis)
+include(Sanitizers)
 include(ToolchainRequirements)
 
 project_check_toolchain()
@@ -40,6 +44,9 @@ target_include_directories(app_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/internal
 target_compile_features(app_core PUBLIC cxx_std_23)
 project_set_warnings(app_core)
 project_set_portability(app_core)
+project_set_coverage(app_core)
+project_set_static_analysis(app_core)
+project_set_sanitizers(app_core)
 
 # Executable: thin wrapper around the library.
 add_executable(app internal/main.cpp)
@@ -51,8 +58,14 @@ target_compile_definitions(app PRIVATE
   APP_VERSION_FULL="${PROJECT_VERSION_FULL}")
 project_set_warnings(app)
 project_set_portability(app)
+project_set_coverage(app)
+project_set_static_analysis(app)
+project_set_sanitizers(app)
 
 include(CTest) # defines BUILD_TESTING (default ON)
 if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
+
+project_add_coverage_target(OBJECTS app app_tests)
+project_add_format_targets()

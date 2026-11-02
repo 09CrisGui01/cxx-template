@@ -12,8 +12,9 @@ unused number, fill it in, and add the record to the [documentation index](index
 
 # ASR NNNN: Title
 
-- **Status:** Proposed | Accepted | Superseded by ASR NNNN | Deprecated
+- **Status:** Proposed | Accepted | Accepted; amended by ASR NNNN | Superseded by ASR NNNN | Deprecated
 - **Date:** YYYY-MM-DD
+- **Supersedes** or **Amends:** ASR NNNN (optional line; omit when the record stands alone)
 - **Verification status:** Met | Partially met | Not met | Not yet verified
 
 ## Context

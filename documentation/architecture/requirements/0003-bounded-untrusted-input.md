@@ -21,7 +21,8 @@ throw or exhibit undefined behavior.
 ## Verification
 
 - Unit tests in `test/config_test.cpp` check each limit at the boundary (the limit passes, one past fails) and each malformed-line error code with its line number. They passed on Linux (GCC and Clang) locally and, as reported by the repository owner, in CI.
-- Not verified: AddressSanitizer and UndefinedBehaviorSanitizer runs (planned for Milestone 4), fuzzing (not planned), behavior on files that change while being read beyond the bounded read in `load_config_file`.
+- The unit and integration tests also passed under AddressSanitizer plus UndefinedBehaviorSanitizer (the `sanitize` preset) with GCC 13.3 and Clang 18.1 on Linux, on 2026-11-01. Whether LeakSanitizer was active was not checked.
+- Not verified: fuzzing (not planned), behavior on files that change while being read beyond the bounded read in `load_config_file`.
 
 ## Alternatives considered
 

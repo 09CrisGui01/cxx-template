@@ -1,8 +1,9 @@
 # Coding standards
 
-**Purpose:** conventions for code in this repository. They describe the existing code. Automated
-formatting (`clang-format`) and static analysis (`clang-tidy`) are not configured yet (Milestone 4),
-so reviewers enforce these rules by hand until then.
+**Purpose:** conventions for code in this repository. They describe the existing code. Formatting
+(`clang-format`) and static analysis (`clang-tidy`) are configured and optional; see
+[Formatting, static analysis and warnings](../tooling/static-analysis.md). Reviewers enforce the
+rules those tools do not.
 
 Requirement keywords (MUST, SHOULD, MAY and their negations) have the meaning given in
 [Conventions](conventions.md#normative-language). Tool, Git, version and documentation conventions
@@ -28,6 +29,7 @@ are in that page, not here.
 | Private data members | trailing underscore | `entries_` |
 | Headers | `#pragma once` | |
 | Indentation | 2 spaces, LF, UTF-8 (see `.editorconfig`) | |
+| Formatting | Google style, 100 columns (`.clang-format`); the `format-check` target verifies it | |
 
 - Headers MUST include what they use.
 - Project headers MUST be included with quotes and standard headers with angle brackets, in separate groups.
@@ -43,6 +45,7 @@ are in that page, not here.
 
 - Expected failures (bad input, missing files) MUST be returned as values: `Result<T, Error>` with an `ErrorCode` and, where useful, a 1-based line number.
 - Exceptions MUST NOT be used for control flow. Code in this repository does not throw on invalid input.
+- `main` MUST catch exceptions that nothing else handles (for example `std::bad_alloc`), print a message and return a failure status, so the program never ends in `std::terminate` for them. clang-tidy's `bugprone-exception-escape` checks this.
 - Every `ErrorCode` MUST have text in `to_string`; a test checks that none is missing.
 - `Result::operator*`, `operator->` and `error()` require the matching state. Callers MUST check `has_value()` first.
 

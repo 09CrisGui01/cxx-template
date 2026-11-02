@@ -47,6 +47,54 @@ jobs:
       - name: Test
         run: ctest --preset ${{ matrix.preset }}
 
+  coverage:
+    name: linux-gcc-coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install gcovr
+        run: pipx install gcovr==8.8
+
+      - name: Configure
+        run: cmake --preset coverage
+
+      - name: Build, test and write the coverage report
+        run: cmake --build --preset coverage-report
+
+      - name: Upload the coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: build/Linux/coverage/coverage
+
+  quality:
+    name: linux-quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install clang-format and clang-tidy
+        run: sudo apt-get update && sudo apt-get install -y clang-format clang-tidy
+
+      - name: Check formatting
+        run: |
+          cmake --preset alpha
+          cmake --build --preset alpha --target format-check
+
+      - name: Build with clang-tidy
+        run: |
+          cmake --preset tidy
+          cmake --build --preset tidy
+
+      - name: Test with AddressSanitizer and UndefinedBehaviorSanitizer
+        run: |
+          cmake --preset sanitize
+          cmake --build --preset sanitize
+          ctest --preset sanitize
+
   freebsd:
     name: freebsd-clang
     runs-on: ubuntu-latest

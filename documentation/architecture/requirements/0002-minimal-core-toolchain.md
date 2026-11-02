@@ -29,8 +29,9 @@ Node.js or Python.
 
 ## Consequences and trade-offs
 
-- Later milestones (Commitlint with Node.js, containers, documentation generator, Jenkins) must stay optional and must not be wired into the default CMake targets.
-- Developer automation beyond CMake presets has to be written as shell and PowerShell scripts, not as a Python dependency.
+- Later milestones (Commitlint with Node.js, containers, documentation generator, Jenkins) MUST stay optional and MUST NOT be wired into the default CMake targets.
+- Developer automation beyond CMake presets has to be written as shell and PowerShell scripts or CMake scripts (as `tool/cmake/RunCoverage.cmake` is), not as a Python dependency.
+- gcovr is a Python tool. It is used only by the optional `coverage` target with GCC and by the optional CI `coverage` job (`pipx install gcovr==8.8` in `.github/workflows/ci.yml`), so the default build stays free of Python.
 
 ## Related decisions
 
