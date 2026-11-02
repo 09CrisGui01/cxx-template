@@ -103,6 +103,7 @@ Verified that tidy catches a real defect: a deliberate use-after-move made the b
 | `format-check` fails | Run the `format` target and review the diff. |
 | `PROJECT_ENABLE_CLANG_TIDY=ON but clang-tidy was not found` | Install clang-tidy or put it on `PATH`. |
 | A clang-tidy finding in a third-party header | Report it; do not widen the header filter. |
+| CI `quality` job fails on a check that passes locally | The runner's clang-tidy version can differ from the local 18.1.3, and newer versions report more. The job prints both tool versions at its start. Fix the code (for example, use designated initializers for aggregates) rather than disabling the check. |
 | `clang-format` and a different version disagree | The style was written with 18.1.3; other major versions may format some code differently. |
 
 ## CI

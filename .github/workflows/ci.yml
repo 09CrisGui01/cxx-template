@@ -79,6 +79,11 @@ jobs:
       - name: Install clang-format and clang-tidy
         run: sudo apt-get update && sudo apt-get install -y clang-format clang-tidy
 
+      - name: Print tool versions
+        run: |
+          clang-format --version
+          clang-tidy --version
+
       - name: Check formatting
         run: |
           cmake --preset alpha

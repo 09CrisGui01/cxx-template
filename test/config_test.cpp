@@ -64,10 +64,10 @@ TEST_CASE("parse_config rejects malformed lines with line numbers", "[config]") 
     std::size_t line;
   };
   const std::array<Case, 4> cases{{
-      {"novalue", ErrorCode::missing_separator, 1},
-      {"ok=1\n=value", ErrorCode::empty_key, 2},
-      {"bad key=1", ErrorCode::invalid_key, 1},
-      {"a=1\nb=2\na=3", ErrorCode::duplicate_key, 3},
+      {.text = "novalue", .code = ErrorCode::missing_separator, .line = 1},
+      {.text = "ok=1\n=value", .code = ErrorCode::empty_key, .line = 2},
+      {.text = "bad key=1", .code = ErrorCode::invalid_key, .line = 1},
+      {.text = "a=1\nb=2\na=3", .code = ErrorCode::duplicate_key, .line = 3},
   }};
   for (const auto& c : cases) {
     CAPTURE(c.text);
