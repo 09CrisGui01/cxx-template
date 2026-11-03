@@ -1,6 +1,6 @@
 # ADR 0002: Catch2 as the test framework
 
-- **Status:** Accepted
+- **Status:** Accepted; amended by [ADR 0014](0014-third-party-libraries-as-submodules.md)
 - **Date:** 2026-10-31
 
 ## Context

@@ -22,6 +22,7 @@ option(PROJECT_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
 include(CompilerWarnings)
 include(Portability)
 include(Coverage)
+include(Documentation)
 include(Format)
 include(StaticAnalysis)
 include(Sanitizers)
@@ -36,12 +37,29 @@ if(NOT DEFINED PROJECT_VERSION_TAG)
 endif()
 include(Version)
 
+# Logging dependency: spdlog. Use the Git submodule in external/spdlog when it
+# is checked out; otherwise use an installed spdlog (the container images do
+# this). See documentation/architecture/decisions/0014-third-party-libraries-as-submodules.md.
+set(_spdlog_dir "${CMAKE_CURRENT_SOURCE_DIR}/external/spdlog")
+if(EXISTS "${_spdlog_dir}/CMakeLists.txt")
+  add_subdirectory("${_spdlog_dir}" "${CMAKE_BINARY_DIR}/external/spdlog" SYSTEM)
+else()
+  find_package(spdlog 1.12 QUIET)
+  if(NOT spdlog_FOUND)
+    message(FATAL_ERROR
+      "spdlog was not found. Run 'git submodule update --init --recursive', "
+      "or install spdlog 1.12 or newer.")
+  endif()
+endif()
+
 # Library: all logic lives here so tests link against it.
 add_library(app_core STATIC
-  internal/config.cpp)
+  internal/config.cpp
+  internal/log.cpp)
 add_library(${PROJECT_NAME}::core ALIAS app_core)
 target_include_directories(app_core PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/internal")
 target_compile_features(app_core PUBLIC cxx_std_23)
+target_link_libraries(app_core PUBLIC spdlog::spdlog)
 project_set_warnings(app_core)
 project_set_portability(app_core)
 project_set_coverage(app_core)
@@ -62,6 +80,13 @@ project_set_coverage(app)
 project_set_static_analysis(app)
 project_set_sanitizers(app)
 
+# Installation: the executable and the sample configuration. The runtime
+# container image is built from this install tree (see Dockerfile).
+include(GNUInstallDirs)
+install(TARGETS app RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
+install(FILES configuration/default.conf
+  DESTINATION "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
+
 include(CTest) # defines BUILD_TESTING (default ON)
 if(BUILD_TESTING)
   add_subdirectory(test)
@@ -69,3 +94,4 @@ endif()
 
 project_add_coverage_target(OBJECTS app app_tests)
 project_add_format_targets()
+project_add_doxygen_target()

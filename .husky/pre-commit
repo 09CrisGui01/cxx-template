@@ -1,0 +1,33 @@
+# Optional checks on the staged changes. Each check is skipped, with a notice,
+# when its tool is not installed. CI runs the same checks, so a skipped hook
+# does not let a problem through unnoticed. To bypass once: git commit --no-verify
+
+status=0
+
+if command -v git-clang-format >/dev/null 2>&1 && command -v clang-format >/dev/null 2>&1; then
+  if ! diff=$(git clang-format --staged --extensions cpp,hpp --diff 2>&1); then
+    printf '%s\n' "$diff"
+    echo "pre-commit: the staged lines above are not formatted."
+    echo "Run 'git clang-format --extensions cpp,hpp', review the result, then 'git add' the files."
+    status=1
+  fi
+else
+  echo "pre-commit: clang-format not found; skipping the format check."
+fi
+
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --no-banner || status=1
+else
+  echo "pre-commit: gitleaks not found; skipping the secret scan."
+fi
+
+if command -v shellcheck >/dev/null 2>&1; then
+  scripts=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^(\.husky/[a-z-]+|script/.*\.sh)$' || true)
+  for script in $scripts; do
+    shellcheck --shell=sh "$script" || status=1
+  done
+else
+  echo "pre-commit: shellcheck not found; skipping the shell script check."
+fi
+
+exit "$status"

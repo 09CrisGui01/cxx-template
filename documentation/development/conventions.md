@@ -24,7 +24,7 @@ A convention marked "manual" is checked by reviewers until the tool that enforce
 
 | Convention | Enforced by | Status |
 |------------|-------------|--------|
-| Commit message format | Commitlint | not configured yet (Milestone 5); manual |
+| Commit message format | Commitlint, in the `commit-msg` hook and in the CI job `hygiene` | in place; the hook is optional and needs Node.js ([Git hooks](../tooling/git-hooks.md)); the CI job has not been run on GitHub yet |
 | Branch names | The pattern in [Branches](#branches), checked by hand or by a host rule | manual |
 | Default branch, merge method, review flow | Host repository settings, review | manual; settings are not stored in the repository ([Repository setup](#repository-setup)) |
 | Tag and version format | `tool/cmake/Version.cmake` validates the stage tag and metadata; tag names by review | partly in place; Git tags manual |
@@ -76,7 +76,7 @@ Recorded in [ADR 0005](../architecture/decisions/0005-branching-and-merge-strate
 - A local merge MUST use `git merge --no-ff <branch>`, so a merge commit is always created.
 - Squash merges and rebase merges MUST NOT be used to integrate pull requests. The host's repository settings SHOULD disable them.
 - An octopus merge (`git merge <branch1> <branch2> <branch3>`) MAY be used to integrate several branches at once. Git's octopus strategy refuses merges that need manual conflict resolution, so branches that conflict MUST be merged one at a time. Hosts' pull request buttons do not create octopus merges; it is done locally.
-- How merge commit messages fit the commit message convention under Commitlint is decided in Milestone 5.
+- Merge commit messages are not checked by Commitlint, which ignores messages that start with `Merge ` ([ADR 0011](../architecture/decisions/0011-optional-node-tooling-for-git-hooks.md)).
 
 ### Commit messages
 
@@ -103,10 +103,9 @@ Scope, `!`, body and footers are optional.
 | `refactor` | Code change that alters neither behavior nor the public interface |
 | `chore` | Maintenance that fits no other type |
 
-These eight types come from the project specification. The final list is fixed when Commitlint is
-configured in Milestone 5.
+These eight types come from the project specification and are enforced by `.commitlintrc.json`.
 
-Scopes name the area touched. The proposed set, to be confirmed in Milestone 5, is `core` (library),
+Scopes name the area touched. The allowed set, enforced by `.commitlintrc.json`, is `core` (library),
 `cli` (executable), `cmake`, `presets`, `test`, `docs`, `ci` and `deps`. The scope SHOULD be omitted
 when a change spans areas.
 
@@ -155,6 +154,7 @@ git diff --staged          # exactly what will be committed
 
 - The staged diff MUST be checked for secrets, machine-specific paths, anything from `build/` and generated files.
 - Formatting SHOULD be checked with `cmake --build --preset alpha --target format-check` when clang-format is installed.
+- With the optional hooks installed ([Git hooks](../tooling/git-hooks.md)), Git runs the formatting, secret and shell script checks and the message check for you.
 - The tests the change touches MUST pass. For code changes, the `beta` preset MUST pass: `cmake --preset beta`, `cmake --build --preset beta`, `ctest --preset beta`.
 
 ### What is never committed
@@ -314,7 +314,7 @@ gh repo edit --enable-merge-commit --enable-squash-merge=false --enable-rebase-m
 
 ### Dependencies
 
-- Adding or upgrading a dependency MUST come with a stated reason, a pinned version and an updated row in the README dependency table, in the same change.
+- Adding or upgrading a dependency MUST come with a stated reason, a pinned version and an updated row in the README dependency table, in the same change. A third-party library is added as a Git submodule in `external/`, pinned to a release tag, and the change is a `build(deps)` commit ([ADR 0014](../architecture/decisions/0014-third-party-libraries-as-submodules.md)).
 - A significant choice SHOULD be recorded as an [ADR](../adr-template.md).
 - The C++ standard library SHOULD be preferred when it is sufficient.
 
@@ -326,7 +326,7 @@ Editors MUST honor `.editorconfig` (UTF-8, LF line endings, 2-space indent, fina
 
 ### Files and structure
 
-- Documentation lives in `documentation/`. The top-level `README.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, `SECURITY.md` and `AGENTS.md` stay in the repository root.
+- Documentation lives in `documentation/`. The top-level `README.md`, `CHANGELOG.md`, `RELEASES.md`, `AUTHORS.md`, `CONTRIBUTORS.md`, `CODE-OF-CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md` and `AGENTS.md` stay in the repository root. GitHub templates stay in `.github/`.
 - File and directory names MUST be lowercase, with words separated by hyphens, and end in `.md`. ADRs and ASRs are `NNNN-short-title.md` with a four-digit number, using the next unused number.
 - Every page MUST have one H1 title and MUST NOT skip heading levels. Headings use sentence case. The ADR and ASR templates are the exception: they contain a second H1 (`# ADR NNNN: Title`) that belongs to the record being written.
 - A substantive page SHOULD open with a **Purpose** line and, as they apply, cover prerequisites, procedure, commands, expected results, troubleshooting and related pages. Short reference pages MAY omit sections that do not apply.

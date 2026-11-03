@@ -40,7 +40,7 @@ cmake --preset coverage
 cmake --build --preset coverage-report
 ```
 
-The second command builds, runs `ctest` and writes the reports. Expected: all 19 tests pass, a
+The second command builds, runs `ctest` and writes the reports. Expected: all 28 tests pass, a
 per-file table, then `-- Coverage reports written to .../build/Linux/coverage/coverage`.
 
 ## Run it (Clang)
@@ -71,21 +71,21 @@ For the preset above `<build dir>` is `build/Linux/coverage`. Every run deletes 
 Lines of `internal/`. Test code (`test/`), third-party code (`_deps/`) and system headers are
 excluded. The `app` executable is included, because the integration tests run it.
 
-Observed on 2026-11-01, Linux, one run each (the tools count lines differently, so the figures
+Observed on 2026-11-02, Linux, one run each (the tools count lines differently, so the figures
 differ):
 
 | Toolchain | Line coverage | Branch coverage |
 |-----------|---------------|-----------------|
-| GCC 13.3 + gcovr 8.8 | 91.9% (114 of 124 lines) | 64.5% (136 of 211) |
-| Clang 18.1 + llvm-cov 18 | 92.50% (148 of 160 lines) | 92.71% (89 of 96) |
+| GCC 13.3 + gcovr 8.8 | 93.3% (167 of 179 lines) | 63.9% (191 of 299) |
+| Clang 18.1 + llvm-cov 18 | 94.02% (220 of 234 lines) | 91.80% (112 of 122) |
 
-Lines that no test executes, as reported by GCC: `internal/config.cpp` lines 44 (the fallback
-return of `to_string` for an invalid `ErrorCode`) and 118, 126 and 133 (the three `read_failed`
-returns for I/O errors while reading a file), and `internal/main.cpp` lines 63 to 68 (the handlers
+Lines that no test executes, as reported by GCC: `internal/config.cpp` lines 46 (the fallback
+return of `to_string` for an invalid `ErrorCode`) and 120, 128 and 135 (the three `read_failed`
+returns for I/O errors while reading a file), `internal/log.cpp` lines 39 and 79 (the fallbacks for
+an invalid `Level` value) and `internal/main.cpp` lines 80 to 85 (the handlers
 for unexpected exceptions). The I/O error paths need a failing read, which cannot be produced
 deterministically on every platform, and the exception handlers need an exception such as
-`std::bad_alloc`, so no test covers them. Coverage fell from 96.6% to 91.9% when those handlers
-were added. Do not treat the percentages as
+`std::bad_alloc`, so no test covers them. Do not treat the percentages as
 a quality score.
 
 ## Threshold

@@ -1,0 +1,18 @@
+{
+  "name": "cpp23-template-tooling",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Optional developer tooling (Git hooks and commit message linting). Not needed to build, test or run the C++ project.",
+  "scripts": {
+    "prepare": "husky",
+    "commitlint": "commitlint"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4",
+    "husky": "9.1.7"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

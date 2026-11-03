@@ -1,4 +1,4 @@
-# Test code: inherits the project configuration, except two checks.
+# Test code: inherits the project configuration, except three checks.
 # - readability-function-cognitive-complexity: Catch2 assertion macros (CHECK,
 #   REQUIRE) expand to branches, so the complexity of a test case is inflated by
 #   the framework, not by the test.
@@ -6,7 +6,12 @@
 #   header (catch_result_type.hpp, a bit-flag enum cast) when a test is
 #   compiled. It is in third-party code that the header filter cannot hide from
 #   the analyzer.
+# - bugprone-chained-comparison: Catch2 expands CHECK(a == b) to
+#   `Decomposer() <= a == b` on purpose, to capture both operands. The check
+#   reports that expansion in Catch2 3.4 (the Ubuntu 24.04 package) but not in
+#   the fetched 3.7.1, so the result would depend on which Catch2 is installed.
 InheritParentConfig: true
 Checks: >
   -readability-function-cognitive-complexity,
-  -clang-analyzer-optin.core.EnumCastOutOfRange
+  -clang-analyzer-optin.core.EnumCastOutOfRange,
+  -bugprone-chained-comparison

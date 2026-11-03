@@ -8,11 +8,11 @@ here because they do not exist yet.
 
 | Component | Files | Responsibility |
 |-----------|-------|----------------|
-| Library `app_core` | `internal/config.cpp`, `internal/config.hpp`, `internal/result.hpp` | All logic: parsing and loading configuration, error types |
+| Library `app_core` | `internal/config.cpp`, `internal/config.hpp`, `internal/log.cpp`, `internal/log.hpp`, `internal/result.hpp` | All logic: parsing and loading configuration, error types, logging setup |
 | Executable `app` | `internal/main.cpp` | Argument handling, printing, exit codes. No logic worth testing in isolation. |
-| Tests `app_tests` | `test/config_test.cpp` | Catch2 unit tests against `app_core` |
+| Tests `app_tests` | `test/config_test.cpp`, `test/log_test.cpp` | Catch2 unit tests against `app_core` |
 | Integration tests | `test/CMakeLists.txt` | CTest tests that run the real `app` binary |
-| CMake helpers | `tool/cmake/CompilerWarnings.cmake`, `tool/cmake/Portability.cmake`, `tool/cmake/ToolchainRequirements.cmake`, `tool/cmake/Version.cmake`, `tool/cmake/Coverage.cmake`, `tool/cmake/RunCoverage.cmake`, `tool/cmake/Format.cmake`, `tool/cmake/StaticAnalysis.cmake`, `tool/cmake/Sanitizers.cmake` | Per-target warning and platform settings; soft compiler minimum check; version tag and metadata; optional coverage, formatting, clang-tidy and sanitizers |
+| CMake helpers | `tool/cmake/CompilerWarnings.cmake`, `tool/cmake/Portability.cmake`, `tool/cmake/ToolchainRequirements.cmake`, `tool/cmake/Version.cmake`, `tool/cmake/Coverage.cmake`, `tool/cmake/RunCoverage.cmake`, `tool/cmake/Format.cmake`, `tool/cmake/StaticAnalysis.cmake`, `tool/cmake/Sanitizers.cmake`, `tool/cmake/Documentation.cmake` | Per-target warning and platform settings; soft compiler minimum check; version tag and metadata; optional coverage, formatting, clang-tidy, sanitizers and Doxygen |
 
 Dependency direction: `app` and `app_tests` depend on `app_core`. `app_core` depends only on the C++
 standard library. Nothing depends on `app` or on test code.
@@ -23,9 +23,9 @@ Defined in `CMakeLists.txt` and `test/CMakeLists.txt`.
 
 | Target | Type | Sources | Notes |
 |--------|------|---------|-------|
-| `app_core` (alias `cpp23_template::core`) | static library | `internal/config.cpp` | Public include directory `internal/`; `cxx_std_23` is a public compile feature |
+| `app_core` (alias `cpp23_template::core`) | static library | `internal/config.cpp`, `internal/log.cpp` | Links `spdlog::spdlog` publicly. Public include directory `internal/`; `cxx_std_23` is a public compile feature |
 | `app` | executable | `internal/main.cpp` | Links `app_core`; defines `APP_VERSION` (from `project(VERSION)`), `APP_VERSION_TAG`, `APP_VERSION_METADATA` and `APP_VERSION_FULL` (from `tool/cmake/Version.cmake`); `--version` prints the last |
-| `app_tests` | executable | `test/config_test.cpp` | Links `app_core` and `Catch2::Catch2WithMain`; only exists when `BUILD_TESTING=ON` |
+| `app_tests` | executable | `test/config_test.cpp`, `test/log_test.cpp` | Links `app_core` and `Catch2::Catch2WithMain`; only exists when `BUILD_TESTING=ON` |
 
 Every target calls `project_set_warnings()`, `project_set_portability()`, `project_set_coverage()`, `project_set_static_analysis()` and `project_set_sanitizers()`; the last three are no-ops unless their option is ON. They apply flags
 `PRIVATE` to the one target; no flags are set globally. Language settings (`CXX_STANDARD 23`,
@@ -64,10 +64,10 @@ Error handling convention: expected failures are values (`Result`, `ErrorCode`),
 
 ## Test architecture
 
-- **Unit tests:** Catch2 cases in `test/config_test.cpp`, discovered by `catch_discover_tests`, so each case is one CTest test. They cover normal input, invalid input, boundaries of every limit, file failures and platform behaviors (tag `[portability]`).
-- **Integration tests:** six CTest tests run the built `app`: no arguments, `--version` (checks the `X.Y.Z[-TAG]+METADATA` shape), the sample file `configuration/default.conf` (expects `loaded 2 entries`), a missing file (must fail), a file with a parse error (the message must name line 2) and too many arguments (must fail).
+- **Unit tests:** Catch2 cases in `test/config_test.cpp` and `test/log_test.cpp`, discovered by `catch_discover_tests`, so each case is one CTest test. They cover normal input, invalid input, boundaries of every limit, file failures and platform behaviors (tag `[portability]`).
+- **Integration tests:** eleven CTest tests run the built `app`: five for logging ([Logging](../development/logging.md#tests)) and these six: no arguments, `--version` (checks the `X.Y.Z[-TAG]+METADATA` shape), the sample file `configuration/default.conf` (expects `loaded 2 entries`), a missing file (must fail), a file with a parse error (the message must name line 2) and too many arguments (must fail).
 - **Isolation:** tests that need files create them in a unique temporary directory (`TempDir` helper) and remove it afterwards. They use no external services and no files outside the repository's `configuration/` sample.
-- **Dependency:** Catch2 is used only by `test/`; production targets do not link it. See [ADR 0002](decisions/0002-catch2-test-framework.md).
+- **Dependencies:** Catch2 is used only by `test/`; production targets do not link it ([ADR 0002](decisions/0002-catch2-test-framework.md)). spdlog is linked by `app_core` ([ADR 0010](decisions/0010-logging-with-spdlog.md)).
 
 - **Coverage:** optional. `PROJECT_ENABLE_COVERAGE=ON` instruments the targets, and the `coverage` target runs `ctest` and writes reports to `<build dir>/coverage/`. See [Coverage](../testing/coverage.md) and [ADR 0008](decisions/0008-coverage-with-gcovr-and-llvm-cov.md).
 - **Quality tools:** optional and per target: clang-format (`format`, `format-check`), clang-tidy (`PROJECT_ENABLE_CLANG_TIDY`) and sanitizers (`PROJECT_SANITIZERS`). See [ADR 0009](decisions/0009-optional-quality-tools-as-cmake-modules.md), [Static analysis](../tooling/static-analysis.md) and [Sanitizers](../testing/sanitizers.md).
@@ -87,7 +87,7 @@ Not yet validated end-to-end; a full rename check is part of Milestone 10.
 
 1. Replace `internal/config.*` with your sources and update the file list in `add_library(app_core ...)` in `CMakeLists.txt`.
 2. Replace `internal/main.cpp` (keep the `app` target, or rename it everywhere it appears in both `CMakeLists.txt` files).
-3. Replace `test/config_test.cpp` and update `add_executable(app_tests ...)` in `test/CMakeLists.txt`.
+3. Replace `test/config_test.cpp` and `test/log_test.cpp` and update `add_executable(app_tests ...)` in `test/CMakeLists.txt`.
 4. Update or delete the six `app.*` integration tests in `test/CMakeLists.txt`; they reference `configuration/default.conf` and the text `loaded 2 entries`.
 5. Remove `configuration/default.conf` and `internal/result.hpp` if unused.
 6. Change `project(cpp23_template ...)` and `VERSION` in `CMakeLists.txt` to your name and version. If you rename the `app` and `app_tests` targets, also change the `OBJECTS` list of `project_add_coverage_target(...)`.

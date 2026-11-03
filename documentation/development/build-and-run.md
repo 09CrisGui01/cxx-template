@@ -50,9 +50,16 @@ these utility targets exist when their tool is available:
 |--------|--------------|--------|
 | `coverage` | `PROJECT_ENABLE_COVERAGE=ON` and the report tools are found | Runs `ctest` and writes the coverage reports ([Coverage](../testing/coverage.md)) |
 | `format` | `clang-format` is found | Rewrites `internal/*` and `test/*.cpp` in place |
+| `doxygen` | Doxygen is found | Writes HTML API documentation to `<build dir>/doxygen/html` ([API documentation](../tooling/api-documentation.md)) |
 | `format-check` | `clang-format` is found | Fails if any of those files differs from `.clang-format` ([Static analysis](../tooling/static-analysis.md)) |
 
 Run one with `cmake --build --preset <name> --target <target>`.
+
+## Installing
+
+`cmake --install <build dir> --prefix <path>` installs the executable to `<path>/bin` and the
+sample configuration to `<path>/share/cpp23_template/`. Add `--strip` to remove debug symbols. The
+runtime container image is built from such an install tree ([Runtime container](../containers/runtime.md)).
 
 ## Build directories
 

@@ -22,7 +22,7 @@ succeed in a new directory.
 
 - Fresh `git clone` into a new directory, then `cmake --preset beta`, `cmake --build --preset beta`, `ctest --preset beta`: run on Linux with GCC 13.3 and Clang 18.1 after each change; passed.
 - The CI workflow checks out the repository fresh for every job; the repository owner reported all jobs passed.
-- Not verified: a build on a machine without network access to github.com (the first configure fetches Catch2); a machine with no prior Catch2 and a different CMake version than 3.28.3.
+- Not verified: a build on a machine without network access to github.com (a clone needs it for the submodules); a machine with no prior Catch2 and a different CMake version than 3.28.3.
 
 ## Alternatives considered
 
@@ -32,7 +32,8 @@ succeed in a new directory.
 ## Consequences and trade-offs
 
 - All build inputs MUST be tracked or fetched by the build itself.
-- The Catch2 fetch pins a tag, not a commit hash, so a moved tag would change a "reproducible" build. Pinning a hash is an open improvement.
+- Since [ADR 0014](../decisions/0014-third-party-libraries-as-submodules.md), spdlog and Catch2 are submodules. A clone made without `--recurse-submodules` cannot configure until `git submodule update --init --recursive` runs, unless the libraries are installed.
+- The submodules pin the libraries by commit hash. The earlier open point about tag pinning no longer applies to them. GitHub Actions and the container base image are still referenced by tag.
 - Build directories live under `build/`, which is ignored, so stale local state cannot be committed.
 
 ## Related decisions

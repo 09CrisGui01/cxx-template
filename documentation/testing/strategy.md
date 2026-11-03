@@ -8,7 +8,7 @@ procedures are in [Unit and integration tests](unit-and-integration-tests.md) an
 
 | Level | Tool | Where | What it checks |
 |-------|------|-------|----------------|
-| Unit | Catch2 ([ADR 0002](../architecture/decisions/0002-catch2-test-framework.md)) | `test/config_test.cpp` | The `app_core` library: valid input, invalid input, boundaries of every limit, file failures, platform behavior |
+| Unit | Catch2 ([ADR 0002](../architecture/decisions/0002-catch2-test-framework.md)) | `test/config_test.cpp`, `test/log_test.cpp` | The `app_core` library: valid input, invalid input, boundaries of every limit, file failures, platform behavior |
 | Integration | CTest running the real `app` | `test/CMakeLists.txt` | Exit status, output text and argument handling of the executable |
 | Coverage | gcov and gcovr, or llvm-cov | `tool/cmake/Coverage.cmake` | Which lines the two levels above execute. A measurement, not a test. |
 | Sanitizers | ASan, UBSan, TSan | `sanitize` and `tsan` presets | Memory errors, undefined behavior and data races while the tests run. See [Sanitizers](sanitizers.md). |

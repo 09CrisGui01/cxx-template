@@ -1,0 +1,9 @@
+{
+  "extends": ["@commitlint/config-conventional"],
+  "rules": {
+    "type-enum": [2, "always", ["feat", "fix", "test", "docs", "build", "ci", "refactor", "chore"]],
+    "scope-enum": [2, "always", ["core", "cli", "cmake", "presets", "test", "docs", "ci", "deps"]],
+    "header-max-length": [1, "always", 72],
+    "body-max-line-length": [1, "always", 72]
+  }
+}

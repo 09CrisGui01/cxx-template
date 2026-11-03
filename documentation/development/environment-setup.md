@@ -12,6 +12,10 @@ Optional, for coverage reports only: gcovr (needs Python) for GCC, or `llvm-cov`
 
 Optional, for quality checks: clang-format and clang-tidy (see [Static analysis](../tooling/static-analysis.md)), and the compiler's sanitizer runtimes (see [Sanitizers](../testing/sanitizers.md)).
 
+Optional, for developer convenience: Node.js 22.12 or newer (Git hooks and commit linting, see [Git hooks](../tooling/git-hooks.md)), gitleaks, shellcheck, Doxygen ([API documentation](../tooling/api-documentation.md)), GDB and Valgrind ([Debugging](debugging.md)).
+
+Optional, for containers: Docker or Podman ([Development container](../containers/development.md)).
+
 Not required for the default build: Docker, Podman, Node.js, Python, Jenkins.
 
 ## Install commands

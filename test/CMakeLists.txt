@@ -1,20 +1,22 @@
-# Test dependency: Catch2 v3. Prefer a system install; otherwise fetch a pinned
-# release. Fetching needs network access on first configure; see the
-# dependency table in README.md and documentation/architecture/decisions/0002-catch2-test-framework.md.
-find_package(Catch2 3.3 QUIET)
-if(NOT Catch2_FOUND)
-  include(FetchContent)
-  FetchContent_Declare(Catch2
-    GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-    GIT_TAG        v3.7.1
-    GIT_SHALLOW    TRUE
-    SYSTEM)
-  FetchContent_MakeAvailable(Catch2)
-  list(APPEND CMAKE_MODULE_PATH "${catch2_SOURCE_DIR}/extras")
+# Test dependency: Catch2 v3. Use the Git submodule in external/Catch2 when it
+# is checked out; otherwise use an installed Catch2 3.3 or newer (the container
+# images do this). See
+# documentation/architecture/decisions/0014-third-party-libraries-as-submodules.md.
+set(_catch2_dir "${PROJECT_SOURCE_DIR}/external/Catch2")
+if(EXISTS "${_catch2_dir}/CMakeLists.txt")
+  add_subdirectory("${_catch2_dir}" "${CMAKE_BINARY_DIR}/external/Catch2" SYSTEM)
+  list(APPEND CMAKE_MODULE_PATH "${_catch2_dir}/extras")
+else()
+  find_package(Catch2 3.3 QUIET)
+  if(NOT Catch2_FOUND)
+    message(FATAL_ERROR
+      "Catch2 was not found. Run 'git submodule update --init --recursive', "
+      "or install Catch2 3.3 or newer, or configure with -DBUILD_TESTING=OFF.")
+  endif()
 endif()
 include(Catch)
 
-add_executable(app_tests config_test.cpp)
+add_executable(app_tests config_test.cpp log_test.cpp)
 target_link_libraries(app_tests PRIVATE app_core Catch2::Catch2WithMain)
 project_set_warnings(app_tests)
 project_set_portability(app_tests)
@@ -59,3 +61,31 @@ set_tests_properties(app.reports_line_of_parse_error PROPERTIES PASS_REGULAR_EXP
 
 add_test(NAME app.rejects_extra_arguments COMMAND app one two)
 set_tests_properties(app.rejects_extra_arguments PROPERTIES WILL_FAIL TRUE)
+
+# Logging: messages go to standard error, and the level comes from the
+# environment variable or the configuration file. CTest matches the pass
+# expression against standard output and standard error together.
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/debug.conf" "log.level = debug\n")
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/bad-level.conf" "log.level = loud\n")
+
+add_test(NAME app.logs_info_from_configuration COMMAND app "${sample_conf}")
+set_tests_properties(app.logs_info_from_configuration PROPERTIES PASS_REGULAR_EXPRESSION
+  "\\[info\\] configuration loaded: 2 entries")
+
+add_test(NAME app.environment_level_overrides_configuration COMMAND app "${sample_conf}")
+set_tests_properties(app.environment_level_overrides_configuration PROPERTIES
+  ENVIRONMENT "APP_LOG_LEVEL=off"
+  FAIL_REGULAR_EXPRESSION "configuration loaded")
+
+add_test(NAME app.environment_enables_debug_logging COMMAND app "${CMAKE_CURRENT_BINARY_DIR}/debug.conf")
+set_tests_properties(app.environment_enables_debug_logging PROPERTIES
+  ENVIRONMENT "APP_LOG_LEVEL=debug"
+  PASS_REGULAR_EXPRESSION "\\[debug\\] config: parsed 1 entries")
+
+add_test(NAME app.warns_about_invalid_environment_level COMMAND app "${sample_conf}")
+set_tests_properties(app.warns_about_invalid_environment_level PROPERTIES
+  ENVIRONMENT "APP_LOG_LEVEL=loud"
+  PASS_REGULAR_EXPRESSION "\\[warning\\] ignoring invalid APP_LOG_LEVEL='loud'")
+
+add_test(NAME app.rejects_invalid_configuration_level COMMAND app "${CMAKE_CURRENT_BINARY_DIR}/bad-level.conf")
+set_tests_properties(app.rejects_invalid_configuration_level PROPERTIES WILL_FAIL TRUE)

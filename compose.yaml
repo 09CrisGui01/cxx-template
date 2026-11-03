@@ -1,0 +1,47 @@
+# Optional Compose configuration (Compose Specification). The Dockerfile is the
+# source of truth; this file only names common workflows. Documentation:
+# documentation/containers/.
+#
+# The default build does not need Compose, Docker or Podman.
+
+services:
+  # Interactive development shell with the repository mounted at /workspace.
+  #   docker compose run --rm dev
+  dev:
+    build:
+      context: .
+      target: dev
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-ubuntu:24.04}
+        DEV_UID: ${DEV_UID:-1000}
+        DEV_GID: ${DEV_GID:-1000}
+    image: cpp23-template:dev
+    volumes:
+      - .:/workspace
+    stdin_open: true
+    tty: true
+
+  # Building this service runs the test suite; the build fails if a test fails.
+  #   docker compose build test
+  test:
+    build:
+      context: .
+      target: test
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-ubuntu:24.04}
+    image: cpp23-template:test
+
+  # The runtime image, run with a read-only root filesystem and no capabilities.
+  #   docker compose run --rm app
+  app:
+    build:
+      context: .
+      target: runtime
+      args:
+        BASE_IMAGE: ${BASE_IMAGE:-ubuntu:24.04}
+    image: cpp23-template:runtime
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true

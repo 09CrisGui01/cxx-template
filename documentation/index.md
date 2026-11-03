@@ -18,7 +18,15 @@ canonical dependency table and platform support table; other pages link to it in
 | [Coverage](testing/coverage.md) | Optional coverage reports with GCC and Clang |
 | [Sanitizers](testing/sanitizers.md) | AddressSanitizer, UndefinedBehaviorSanitizer, ThreadSanitizer |
 | [GitHub Actions](ci-cd/github-actions.md) | CI workflow: triggers, jobs, local reproduction, troubleshooting |
+| [Development container](containers/development.md) | Docker or Podman development shell |
+| [Test and coverage containers](containers/testing.md) | Tests and coverage reports in a clean image |
+| [Runtime container](containers/runtime.md) | Runtime image, security properties, image updates, Docker and Podman differences |
+| [Git hooks, commit linting and secret scanning](tooling/git-hooks.md) | Optional Husky hooks, Commitlint, gitleaks, shellcheck |
+| [API documentation](tooling/api-documentation.md) | Doxygen target |
+| [Debugging](development/debugging.md) | GDB and Valgrind |
+| [Tool evaluation](tooling/tool-evaluation.md) | Which tools were adopted or not, and why |
 | [Formatting, static analysis and warnings](tooling/static-analysis.md) | Compiler warnings, clang-format, clang-tidy |
+| [Logging](development/logging.md) | spdlog usage, levels, `APP_LOG_LEVEL` and `log.level` |
 | [Coding standards](development/coding-standards.md) | C++23 rules, naming, error handling, testing expectations |
 | [Conventions](development/conventions.md) | Git commits and branches, tool usage, documentation writing (no code rules) |
 | [Architecture overview](architecture/overview.md) | Components, CMake targets, data flow, test architecture |
@@ -35,6 +43,11 @@ canonical dependency table and platform support table; other pages link to it in
 | [ADR 0007](architecture/decisions/0007-default-branch-and-topic-branch-names.md) | Default branch and topic branch names |
 | [ADR 0008](architecture/decisions/0008-coverage-with-gcovr-and-llvm-cov.md) | Coverage with gcovr for GCC and llvm-cov for Clang |
 | [ADR 0009](architecture/decisions/0009-optional-quality-tools-as-cmake-modules.md) | Optional quality tools as per-target CMake modules |
+| [ADR 0010](architecture/decisions/0010-logging-with-spdlog.md) | Logging with spdlog |
+| [ADR 0011](architecture/decisions/0011-optional-node-tooling-for-git-hooks.md) | Optional Node.js tooling for Git hooks and commit linting |
+| [ADR 0012](architecture/decisions/0012-doxygen-for-api-documentation.md) | Doxygen for API documentation |
+| [ADR 0013](architecture/decisions/0013-multi-stage-container-image.md) | One multi-stage image definition for Docker and Podman |
+| [ADR 0014](architecture/decisions/0014-third-party-libraries-as-submodules.md) | Third-party libraries as Git submodules |
 | [ASR 0001](architecture/requirements/0001-clean-checkout-reproducibility.md) | Clean-checkout reproducibility |
 | [ASR 0002](architecture/requirements/0002-minimal-core-toolchain.md) | Minimal core toolchain |
 | [ASR 0003](architecture/requirements/0003-bounded-untrusted-input.md) | Bounded untrusted input |
@@ -42,6 +55,7 @@ canonical dependency table and platform support table; other pages link to it in
 | [ASR 0005](architecture/requirements/0005-deterministic-self-contained-tests.md) | Deterministic, self-contained tests |
 | [ASR 0006](architecture/requirements/0006-optional-coverage-measurement.md) | Optional coverage measurement |
 | [ASR 0007](architecture/requirements/0007-findings-fail-the-run.md) | Tool findings fail the run |
+| [ASR 0008](architecture/requirements/0008-separate-runtime-image.md) | Separate runtime image |
 
 ## Not yet written
 
@@ -50,8 +64,7 @@ its milestone and is added to the table above at that time.
 
 | Topic | Milestone |
 |-------|-----------|
-| Git hooks, Commitlint setup, release workflow | 5 |
-| Containers (development, testing, runtime) | 6 |
+| Release workflow (tagging and changelog procedure beyond `RELEASES.md`) | 5 |
 | AI-assisted development (`AGENTS.md`) | 7 |
 | Jenkins | 8 |
 | Dependency scanning, security, troubleshooting index | 9 |

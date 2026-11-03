@@ -1,5 +1,7 @@
 #include "config.hpp"
 
+#include <spdlog/spdlog.h>
+
 #include <algorithm>
 #include <fstream>
 #include <system_error>
@@ -133,7 +135,14 @@ Result<Config, Error> load_config_file(const std::filesystem::path& path) {
     return Failure(Error{ErrorCode::read_failed, 0});
   }
   text.resize(static_cast<std::size_t>(in.gcount()));
-  return parse_config(text);
+  auto parsed = parse_config(text);
+  if (parsed) {
+    spdlog::debug("config: parsed {} entries from {} bytes", parsed->size(), text.size());
+  } else {
+    spdlog::debug("config: parse failed: {} (line {})", to_string(parsed.error().code),
+                  parsed.error().line);
+  }
+  return parsed;
 }
 
 }  // namespace app

@@ -32,6 +32,8 @@ Every job uses presets from `CMakePresets.json`, the same commands as
 | `freebsd-clang` (`freebsd`) | `ubuntu-latest` running a FreeBSD VM | `alpha` | installs CMake, Ninja and Git with `pkg`, then configure, build, test | reported working |
 | `linux-gcc-coverage` (`coverage`) | `ubuntu-latest` | `coverage` | installs gcovr with `pipx`, builds the `coverage-report` target, uploads `build/Linux/coverage/coverage` as the artifact `coverage-report` | **not run on GitHub** |
 | `linux-quality` (`quality`) | `ubuntu-latest` | `alpha`, `tidy`, `sanitize` | installs clang-format and clang-tidy with `apt`, then `format-check`, the `tidy` build, and the `sanitize` build and tests (GCC) | **not run on GitHub** |
+| `linux-container` (`container`) | `ubuntu-latest` | none | `docker build` of the `test` and `runtime` targets, then a smoke test of the runtime image with a read-only filesystem and no capabilities ([Runtime container](../containers/runtime.md)) | **not run on GitHub** |
+| `linux-hygiene` (`hygiene`) | `ubuntu-latest` | none | shellcheck on the hook files, gitleaks over the full history (pinned release, SHA-256 verified), and for pull requests Commitlint on the pull request's commits ([Git hooks](../tooling/git-hooks.md)) | **not run on GitHub** |
 
 "Reported working" means the repository owner reported the job passing; the author did not observe
 it. Only Debug builds run on macOS, Windows and FreeBSD; Release is not run on them.
@@ -40,8 +42,9 @@ it. Only Debug builds run on macOS, Windows and FreeBSD; Release is not run on t
 
 | Action | Reference | Used by |
 |--------|-----------|---------|
-| `actions/checkout` | `v4` | every job |
+| `actions/checkout` | `v4` | every job; with `submodules: recursive` in the jobs that build (`build-test`, `coverage`, `quality`, `freebsd`), so that `external/` is present ([ADR 0014](../architecture/decisions/0014-third-party-libraries-as-submodules.md)) |
 | `actions/upload-artifact` | `v4` | `coverage` |
+| `actions/setup-node` | `v4` | `hygiene` (pull requests) |
 | `ilammy/msvc-dev-cmd` | `v1` | `windows-msvc` |
 | `vmactions/freebsd-vm` | `v1` | `freebsd` |
 

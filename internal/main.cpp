@@ -1,9 +1,12 @@
+#include <spdlog/spdlog.h>
+
 #include <cstdlib>
 #include <exception>
 #include <iostream>
 #include <string_view>
 
 #include "config.hpp"
+#include "log.hpp"
 
 #ifndef APP_VERSION
 #define APP_VERSION "unknown"
@@ -36,6 +39,9 @@ int run(int argc, char** argv) {
     return exit_ok;
   }
 
+  const bool level_from_environment = app::log::init_from_environment();
+  spdlog::debug("version {}", APP_VERSION_FULL);
+
   const auto config = app::load_config_file(argv[1]);
   if (!config) {
     std::cerr << "error: " << app::to_string(config.error().code);
@@ -45,6 +51,17 @@ int run(int argc, char** argv) {
     std::cerr << '\n';
     return exit_failure;
   }
+
+  // The environment variable takes precedence over the configuration file.
+  if (const auto name = config->get(app::log::level_config_key); name && !level_from_environment) {
+    const auto level = app::log::parse_level(*name);
+    if (!level) {
+      std::cerr << "error: invalid " << app::log::level_config_key << " '" << *name << "'\n";
+      return exit_failure;
+    }
+    app::log::set_level(*level);
+  }
+  spdlog::info("configuration loaded: {} entries", config->size());
 
   std::cout << "loaded " << config->size() << " entries\n";
   for (const auto& [key, value] : config->entries()) {

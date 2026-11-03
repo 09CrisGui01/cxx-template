@@ -29,3 +29,6 @@ node_modules/
 .env
 *.pem
 *.key
+
+# CTest output when run from the source directory
+/Testing/

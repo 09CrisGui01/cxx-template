@@ -23,6 +23,8 @@ jobs:
           - { name: windows-msvc, os: windows-latest, configure: msvc,  preset: msvc-debug, msvc: true }
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Select compiler
         if: matrix.cxx
@@ -53,6 +55,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install gcovr
         run: pipx install gcovr==8.8
@@ -75,6 +79,8 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install clang-format and clang-tidy
         run: sudo apt-get update && sudo apt-get install -y clang-format clang-tidy
@@ -100,12 +106,69 @@ jobs:
           cmake --build --preset sanitize
           ctest --preset sanitize
 
+  container:
+    name: linux-container
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build and run the tests in the test image
+        run: docker build --target test -t cpp23-template:test .
+
+      - name: Build the runtime image
+        run: docker build --target runtime -t cpp23-template:runtime .
+
+      - name: Smoke test the runtime image
+        run: |
+          docker run --rm --read-only --cap-drop ALL --security-opt no-new-privileges \
+            cpp23-template:runtime | grep "loaded 2 entries"
+          docker run --rm --entrypoint id cpp23-template:runtime | grep "uid=10001"
+
+  hygiene:
+    name: linux-hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check shell scripts
+        run: shellcheck --shell=sh .husky/pre-commit .husky/commit-msg
+
+      - name: Scan for secrets
+        env:
+          GITLEAKS_VERSION: 8.30.0
+          GITLEAKS_SHA256: 79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e
+        run: |
+          curl -sSL -o gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum --check
+          tar -xzf gitleaks.tar.gz gitleaks
+          ./gitleaks git --redact --no-banner .
+
+      - uses: actions/setup-node@v4
+        if: github.event_name == 'pull_request'
+        with:
+          node-version: 22
+
+      - name: Lint commit messages
+        if: github.event_name == 'pull_request'
+        run: |
+          npm ci --ignore-scripts
+          npx --no -- commitlint \
+            --from "${{ github.event.pull_request.base.sha }}" \
+            --to "${{ github.event.pull_request.head.sha }}"
+
   freebsd:
     name: freebsd-clang
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
       - name: Build and test in FreeBSD VM
         uses: vmactions/freebsd-vm@v1
         with:
